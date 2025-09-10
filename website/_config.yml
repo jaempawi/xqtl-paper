@@ -3,9 +3,9 @@ title: FunGen-xQTL Manuscript Repository
 author: FunGen-AD Consortium
 copyright: "2025"  # Current year
 
-# Force re-execution of notebooks on each build
+# Disable notebook execution to avoid kernel issues
 execute:
-  execute_notebooks: force
+  execute_notebooks: off
 
 # Define the name of the latex output file for PDF builds
 latex:
