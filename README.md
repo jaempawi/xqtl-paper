@@ -2,9 +2,11 @@
 
 Code and data to reproduce figures in the FunGen-xQTL phase 1 manuscript.
 
-## About xQTL
+## FunGen-xQTL Overview
 
 This project focuses on functional genomics and expression quantitative trait loci (xQTL) analysis. The xQTL approach integrates multi-omics data to understand regulatory architecture and genetic influences on molecular phenotypes.
+
+For a list of data and resources from our project please check out https://statfungen.github.io/xqtl-resources/#fungen-xqtl
 
 ## Repository Structure
 
