@@ -9,4 +9,8 @@ chapters:
   - file: main_text/3_single_context_multigene_trans/index
   - file: main_text/4_multi_context/index
   - file: main_text/5_AD_xQTL_integration/index
+    sections:
+      - file: main_text/5_AD_xQTL_integration/Figure_5a_AD_GWAS_loci_harmonized
+      - file: main_text/5_AD_xQTL_integration/Figure_5b_AD_GWAS_loci_properties
+      - file: main_text/5_AD_xQTL_integration/Figure_5c_AD_loci_xQTL_annotated
   - file: main_text/6_AD_xQTL_genes/index
