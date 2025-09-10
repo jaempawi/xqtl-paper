@@ -23,7 +23,7 @@ jobs:
 
     - name: Build the book
       run: |
-        jupyter-book build . --config manuscript-website/_config.yml --toc manuscript-website/_toc.yml
+        jupyter-book build . --config website/_config.yml --toc website/_toc.yml
 
     - name: GitHub Pages action
       uses: peaceiris/actions-gh-pages@v3.6.1
