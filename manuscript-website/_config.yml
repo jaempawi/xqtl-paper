@@ -1,0 +1,27 @@
+# Book settings
+title: xQTL Manuscript Resources
+author: FunGen-xQTL Consortium
+copyright: "2025"  # Current year
+
+# Force re-execution of notebooks on each build
+execute:
+  execute_notebooks: force
+
+# Define the name of the latex output file for PDF builds
+latex:
+  latex_documents:
+    targetname: book.tex
+
+# Add a bibtex file for citations
+bibtex_bibfiles:
+  - references.bib
+
+# Information about where the book exists on the web
+repository:
+  url: https://github.com/StatFunGen/xqtl-paper
+  branch: main
+
+# Add GitHub buttons to your book
+html:
+  use_issues_button: true
+  use_repository_button: true
