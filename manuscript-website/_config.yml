@@ -1,6 +1,6 @@
 # Book settings
-title: xQTL Manuscript Resources
-author: FunGen-xQTL Consortium
+title: FunGen-xQTL Manuscript Repository
+author: FunGen-AD Consortium
 copyright: "2025"  # Current year
 
 # Force re-execution of notebooks on each build
