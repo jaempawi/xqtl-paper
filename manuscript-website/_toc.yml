@@ -2,7 +2,11 @@
 # Learn more at https://jupyterbook.org/customize/toc.html
 
 format: jb-book
-root: index
+root: README
 chapters:
-  - file: intro
-  - file: getting-started
+  - file: main_text/1_project_overview/index
+  - file: main_text/2_single_context_cis/index
+  - file: main_text/3_single_context_multigene_trans/index
+  - file: main_text/4_multi_context/index
+  - file: main_text/5_AD_xQTL_integration/index
+  - file: main_text/6_AD_xQTL_genes/index
