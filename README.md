@@ -1,4 +1,4 @@
-# xQTL Manuscript Resources
+# About
 
 Code and data to reproduce figures in the FunGen-xQTL phase 1 manuscript.
 
