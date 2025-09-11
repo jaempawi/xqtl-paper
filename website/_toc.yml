@@ -18,5 +18,5 @@ chapters:
       - file: main_text/5_AD_xQTL_integration/Figure_5f_PPI
       - file: main_text/5_AD_xQTL_integration/Figure_5g_cV2F
   - file: main_text/6_AD_xQTL_genes/index
-      sections:
+    sections:
       - file: main_text/6_AD_xQTL_genes/Figure_6_AD_loci_table_visualization
