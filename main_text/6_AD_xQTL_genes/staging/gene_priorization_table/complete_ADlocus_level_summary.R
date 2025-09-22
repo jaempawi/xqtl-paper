@@ -1265,15 +1265,15 @@ res_adxubf$top_confidence|>table()
 #Main Excel Sheet creation ####
 #get the columns metadata ready
 
-cols<-fread('analyses_summary/columns_metadata.tsv')[(keep==1)]
-colsmtd<-fread('analyses_summary/excel_metadata.tsv')
+cols<-fread('columns_metadata.tsv')[(keep==1)]
+colsmtd<-fread('excel_metadata.tsv')
 colorsmtd<-fread('pattern_coloring.tsv')
 
 cols<-PrepColsMtd(cols,colsmtd,res_adxubf)
 unique(cols[,.(parent_column,grandparent_column)])|>tail(100)
 #get the main sheet
 wb<-CreateExcelFormat(res_adxubf,columns_mtd =cols,colors = colorsmtd)
-res_adxubf[nsplice_sites.Oli.sQTL>0]|>nrow()
+
 
 #One sheet per broad context Creation #####
 #split per context keeping central information 
