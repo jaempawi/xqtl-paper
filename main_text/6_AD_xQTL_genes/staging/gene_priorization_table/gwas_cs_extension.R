@@ -1,17 +1,15 @@
 
 #GWAS extended CS creation
-setwd('/adpelle1/xqtl-paper/')
-out<-'analyses_summary/'
-source('../../../alexandre-utils/r_utils.R')
-source('codes/utilis.R')
-source('codes/cb_plot.R')
-source('codes/qtl_utils.R')
+setwd('/adpelle1/xqtl-paper-final/main_text/6_AD_xQTL_genes/staging/gene_priorization_table/')
+out<-'.'
+source('gene_prio_utils.R')
+
 library(pecotmr)
 
 #if r > 0.8, AND the union of the two CS have min abs(r) > 0.5
 #first get long table variant1 variant2 r for abs(r)>0.5
 
-res_gwf <- fread('/adpelle1/xqtl-paper/analyses_summary/res_all_single_gwas_finemapping_cs50orgreater.csv.gz') 
+res_gwf <- fread(fp(out,'res_all_single_gwas_finemapping_cs50orgreater.csv.gz'))
 res_gwf[,source:='AD_GWAS_finemapping']
 #bind with ADxQTL, ADAD and fsusie colocs
 res_c<-fread(fp(out,'res_coloc_AD_xQTL_unified.csv.gz'))
@@ -144,6 +142,7 @@ gwas_new<-rbindlist(lapply(regions,function(r){
     return(res_gwff_cs_ext[,region:=r])
   }),fill = TRUE)
 
+
 #iteration 2 and +
 change<-TRUE
 while(change){
@@ -225,7 +224,7 @@ resfp<-dcast(gwas_newf,
                 study+region+variant_ID~coverage,
                 value.var = 'cs_num')
 #add pip, z
-mtd<-fread('all_analysis_summary_tables_metadata.csv',header = T,select = 1:6)
+mtd<-fread('metadata_analysis.csv',header = T,select = 1:6)
 
 res_gw<-rbindlist(lapply(file.path('/data',mtd[Method=='AD_GWAS_finemapping']$Path),function(f)fread(f)),fill = T)
 res_gw[,study:=event_ID]
@@ -252,7 +251,10 @@ summary(unique(resfp[cs_coverage_0.7>0],by=c('study','region','cs_coverage_0.95'
   #  0.00    0.00    5.00   18.99   23.00  144.00 
 
 resfp[!is.na(PIP)]
-fwrite(resfp,'/adpelle1/export/AD_GWAS_finemapping_109_blocks_top_loci_unified_withAllCoS_any0.8ANDmin0.5_converged.csv.gz')
+
+#export
+#fwrite(resfp,'/adpelle1/export/AD_GWAS_finemapping_109_blocks_top_loci_unified_withAllCoS_any0.8ANDmin0.5_converged.csv.gz')
+
 fwrite(resfp,fp(out,'res_all_single_gwas_finemapping_cs50orgreater_unified_withAllCoS_any0.8ANDmin0.5_converged.csv.gz'))
 
 #COLOCS
@@ -350,156 +352,139 @@ fwrite(res_cfnew,fp(out,'res_coloc_AD_epiQTL_unified_withFP_andAllCoS_any0.8ANDm
 
 
 #QC####
-#how many GWAS overlap compared to before?
-gwas_new[,overlapping_locus.var:=paste(unique(locuscontext_id),collapse ='|'),
-         by=c('variant_ID')]
+# #how many GWAS overlap compared to before?
+# gwas_new[,overlapping_locus.var:=paste(unique(locuscontext_id),collapse ='|'),
+#          by=c('variant_ID')]
+# 
+# 
+# gwas_new[,overlapping_locus:=paste(sort(unique(unlist(strsplit(overlapping_locus.var,'\\|')))),collapse = '|'),
+#          by=c('locuscontext_id')]
+# gwas_new[,n.overlapping_locus:=str_count(overlapping_locus,'AD'),
+#          by=c('locuscontext_id')]
+# gwas_new[n.overlapping_locus>0]$locuscontext_id|>unique()|>length()#606/859
+# unique(gwas_new$locuscontext_id)|>length()
+# 
+# res_gwf_cs<-melt(res_gwf,measure.vars=c('cs_coverage_0.95_min_corr',
+#                                       'cs_coverage_0.7_min_corr',
+#                                       'cs_coverage_0.5_min_corr'),
+#                 variable.name='coverage',value.name = 'cs_num')
+# res_gwf_cs<-unique(res_gwf_cs[cs_num!=0])
+# res_gwf_cs[,locuscontext_id:=paste(region,study,coverage,cs_num,sep='_')]
+# res_gwf_cs[,overlapping_locus.var:=paste(unique(locuscontext_id),collapse ='|'),
+#          by=c('variant_ID')]
+# 
+# res_gwf_cs[,overlapping_locus:=paste(sort(unique(unlist(strsplit(overlapping_locus.var,'\\|')))),collapse = '|'),
+#          by=c('locuscontext_id')]
+# res_gwf_cs[,n.overlapping_locus:=str_count(overlapping_locus,'AD'),
+#          by=c('locuscontext_id')]
+# res_gwf_cs[n.overlapping_locus>0]$locuscontext_id|>unique()|>length()#575/859
+# unique(res_gwf_cs$locuscontext_id)|>length()#86
+# 
+# sum(unique(res_gwf_cs,by='locuscontext_id')$n.overlapping_locus)#2719
+# 
+# sum(unique(gwas_new,by='locuscontext_id')$n.overlapping_locus)#3045
+# 
+# #cs95 only
+# res_gwf_loc<-unique(res_gwf_cs[coverage=='cs_coverage_0.95_min_corr'],by='locuscontext_id')
+# 
+# res_gwf_loc[n.overlapping_locus>1]$locuscontext_id|>unique()|>length()#117
+# 
+# res_gwf_loc$locuscontext_id|>unique()|>length()#117/170
+# 
+# 
+# gwas_new_loc<-unique(gwas_new[coverage=='cs_coverage_0.95_min_corr'],by='locuscontext_id')
+# 
+# gwas_new_loc[n.overlapping_locus>1]$locuscontext_id|>unique()|>length()#117
+# 
+# gwas_new_loc$locuscontext_id|>unique()|>length()#117/170
+# 
+# #total overlap for cs95
+# sum(res_gwf_loc$n.overlapping_locus)-nrow(res_gwf_loc)#373
+# sum(gwas_new_loc$n.overlapping_locus)-nrow(gwas_new_loc)#402
+# 
+# #how many loci compared to before?
+# gwas_new_loc[coverage=='cs_coverage_0.95_min_corr']$overlapping_locus|>unique()|>length()#92
+# gwas_new_loc
+# 
+# #before [from]
+# res_gwf_loc[coverage=='cs_coverage_0.95_min_corr']$overlapping_locus|>unique()|>length()#95
+# res_gwf_cs[,chr:=paste0('chr',seqid(variant_id)),by='locuscontext_id']
+# 
+# res_gwf_cs[,gwas_region.hit:=paste(chr,min(pos(variant_id)),max(pos(variant_id)),sep='_'),by='locuscontext_id']
+# res_gwf_cs[,gwas_region.hit.start:=start(gwas_region.hit)]
+# res_gwf_cs[,gwas_region.hit.end:=end(gwas_region.hit)+1]
+# 
+# fwrite(unique(res_gwf_cs[,.(chr,gwas_region.hit.start,gwas_region.hit.end,locuscontext_id)])[order(chr,gwas_region.hit.start)],'gwas.region.old.bed',sep='\t',col.names=F)
+# 
+# #intersect regions
+# cmds<-list(paste('bedtools merge -i','gwas.region.old.bed',
+#                  '>','gwas.region.old.merge.bed'),
+#            paste('bedtools intersect -wa -wb -a','gwas.region.old.bed',
+#                  '-b', 'gwas.region.old.merge.bed',
+#                  '>','gwas.region.old.inter.bed'))
+# for(cmd in cmds){
+#   system(cmd)
+# }
+# gwas.inter.bed<-fread('gwas.region.old.inter.bed',select=4:7,col.names = c('locuscontext_id','chr','start','end'))
+# gwas.inter.bed[,gwas_region.hit.bedunion:=paste(chr,start,end,sep='-')]
+# res_gwf_loc<-unique(res_gwf_cs,by='locuscontext_id')
+# 
+# 
+# res_gwf_loc<-merge(res_gwf_loc[,-'gwas_region.hit.bedunion'],
+#                 unique(gwas.inter.bed[,.(locuscontext_id,gwas_region.hit.bedunion)]),by='locuscontext_id')
+# #find overlapping AD CS
+# res_gwf_loc[,gwas_region.hit.union:={
+#   message('======= new locus =======')
+#   print(gwas_region.hit.bedunion)
+#   #get the different sets list
+#   #set number back to the locus
+#   #for each gwasoverlap, if intersect, i create the union 
+#   overlaps_list<-strsplit(overlapping_locus,'\\|')
+#   overlaps_list<-lapply(1:.N, function(i)c(overlaps_list[[i]],locuscontext_id[i]))
+#   overlap_set_num<-1:.N
+#   already_set<-c()
+#   for(i in 1:.N){
+#     if(!i%in%already_set){
+#       overlap_set_num[i]<-i
+#       already_set<-c(already_set,i)
+#     }
+#     if(.N>1){
+#       for(j in (i+1):.N){
+#         #if next CSs are intersecting with i, merge with i 
+#         if(length(intersect(overlaps_list[[overlap_set_num[i]]],
+#                             overlaps_list[[overlap_set_num[j]]]))>0){
+#           message('found intersection between ',locuscontext_id[i],' and ',locuscontext_id[j])
+#           overlaps_list[[overlap_set_num[i]]]<-union(overlaps_list[[overlap_set_num[i]]],overlaps_list[[overlap_set_num[j]]])
+#           
+#           overlap_set_num[j]<-overlap_set_num[i]
+#           message('new sets :')
+#           print(overlap_set_num)
+#           already_set<-c(already_set,j)
+#           #update the overlap list
+#           
+#           
+#           
+#         }
+#         
+#       }
+#     }
+#     
+#   }
+#   paste(gwas_region.hit.bedunion,overlap_set_num,sep='_')
+# },by='gwas_region.hit.bedunion']
+# 
+# res_gwf_loc[str_detect(coverage,'95')]$gwas_region.hit.union|>unique()|>length()
+# 
+# 
+# #n.extension
+# ggplot(gwas_new)+geom_bar(aes(x=coverage,fill=original_cs))+theme_bw()
+# 
+# gwas_new[,n.extension:=.N-sum(original_cs),by='locuscontext_id']
+# 
+# ggplot(unique(gwas_new,by='locuscontext_id'))+
+#   geom_boxplot(aes(x=coverage,y=n.extension))+
+#   theme_bw()+theme_bw()
 
-
-gwas_new[,overlapping_locus:=paste(sort(unique(unlist(strsplit(overlapping_locus.var,'\\|')))),collapse = '|'),
-         by=c('locuscontext_id')]
-gwas_new[,n.overlapping_locus:=str_count(overlapping_locus,'AD'),
-         by=c('locuscontext_id')]
-gwas_new[n.overlapping_locus>0]$locuscontext_id|>unique()|>length()#606/859
-unique(gwas_new$locuscontext_id)|>length()
-
-res_gwf_cs<-melt(res_gwf,measure.vars=c('cs_coverage_0.95_min_corr',
-                                      'cs_coverage_0.7_min_corr',
-                                      'cs_coverage_0.5_min_corr'),
-                variable.name='coverage',value.name = 'cs_num')
-res_gwf_cs<-unique(res_gwf_cs[cs_num!=0])
-res_gwf_cs[,locuscontext_id:=paste(region,study,coverage,cs_num,sep='_')]
-res_gwf_cs[,overlapping_locus.var:=paste(unique(locuscontext_id),collapse ='|'),
-         by=c('variant_ID')]
-
-res_gwf_cs[,overlapping_locus:=paste(sort(unique(unlist(strsplit(overlapping_locus.var,'\\|')))),collapse = '|'),
-         by=c('locuscontext_id')]
-res_gwf_cs[,n.overlapping_locus:=str_count(overlapping_locus,'AD'),
-         by=c('locuscontext_id')]
-res_gwf_cs[n.overlapping_locus>0]$locuscontext_id|>unique()|>length()#575/859
-unique(res_gwf_cs$locuscontext_id)|>length()#86
-
-sum(unique(res_gwf_cs,by='locuscontext_id')$n.overlapping_locus)#2719
-
-sum(unique(gwas_new,by='locuscontext_id')$n.overlapping_locus)#3045
-
-#cs95 only
-res_gwf_loc<-unique(res_gwf_cs[coverage=='cs_coverage_0.95_min_corr'],by='locuscontext_id')
-
-res_gwf_loc[n.overlapping_locus>1]$locuscontext_id|>unique()|>length()#117
-
-res_gwf_loc$locuscontext_id|>unique()|>length()#117/170
-
-
-gwas_new_loc<-unique(gwas_new[coverage=='cs_coverage_0.95_min_corr'],by='locuscontext_id')
-
-gwas_new_loc[n.overlapping_locus>1]$locuscontext_id|>unique()|>length()#117
-
-gwas_new_loc$locuscontext_id|>unique()|>length()#117/170
-
-#total overlap for cs95
-sum(res_gwf_loc$n.overlapping_locus)-nrow(res_gwf_loc)#373
-sum(gwas_new_loc$n.overlapping_locus)-nrow(gwas_new_loc)#402
-
-#how many loci compared to before?
-gwas_new_loc[coverage=='cs_coverage_0.95_min_corr']$overlapping_locus|>unique()|>length()#92
-gwas_new_loc
-
-#before [from]
-res_gwf_loc[coverage=='cs_coverage_0.95_min_corr']$overlapping_locus|>unique()|>length()#95
-res_gwf_cs[,chr:=paste0('chr',seqid(variant_id)),by='locuscontext_id']
-
-res_gwf_cs[,gwas_region.hit:=paste(chr,min(pos(variant_id)),max(pos(variant_id)),sep='_'),by='locuscontext_id']
-res_gwf_cs[,gwas_region.hit.start:=start(gwas_region.hit)]
-res_gwf_cs[,gwas_region.hit.end:=end(gwas_region.hit)+1]
-
-fwrite(unique(res_gwf_cs[,.(chr,gwas_region.hit.start,gwas_region.hit.end,locuscontext_id)])[order(chr,gwas_region.hit.start)],'gwas.region.old.bed',sep='\t',col.names=F)
-
-#intersect regions
-cmds<-list(paste('bedtools merge -i','gwas.region.old.bed',
-                 '>','gwas.region.old.merge.bed'),
-           paste('bedtools intersect -wa -wb -a','gwas.region.old.bed',
-                 '-b', 'gwas.region.old.merge.bed',
-                 '>','gwas.region.old.inter.bed'))
-for(cmd in cmds){
-  system(cmd)
-}
-gwas.inter.bed<-fread('gwas.region.old.inter.bed',select=4:7,col.names = c('locuscontext_id','chr','start','end'))
-gwas.inter.bed[,gwas_region.hit.bedunion:=paste(chr,start,end,sep='-')]
-res_gwf_loc<-unique(res_gwf_cs,by='locuscontext_id')
-
-
-res_gwf_loc<-merge(res_gwf_loc[,-'gwas_region.hit.bedunion'],
-                unique(gwas.inter.bed[,.(locuscontext_id,gwas_region.hit.bedunion)]),by='locuscontext_id')
-#find overlapping AD CS
-res_gwf_loc[,gwas_region.hit.union:={
-  message('======= new locus =======')
-  print(gwas_region.hit.bedunion)
-  #get the different sets list
-  #set number back to the locus
-  #for each gwasoverlap, if intersect, i create the union 
-  overlaps_list<-strsplit(overlapping_locus,'\\|')
-  overlaps_list<-lapply(1:.N, function(i)c(overlaps_list[[i]],locuscontext_id[i]))
-  overlap_set_num<-1:.N
-  already_set<-c()
-  for(i in 1:.N){
-    if(!i%in%already_set){
-      overlap_set_num[i]<-i
-      already_set<-c(already_set,i)
-    }
-    if(.N>1){
-      for(j in (i+1):.N){
-        #if next CSs are intersecting with i, merge with i 
-        if(length(intersect(overlaps_list[[overlap_set_num[i]]],
-                            overlaps_list[[overlap_set_num[j]]]))>0){
-          message('found intersection between ',locuscontext_id[i],' and ',locuscontext_id[j])
-          overlaps_list[[overlap_set_num[i]]]<-union(overlaps_list[[overlap_set_num[i]]],overlaps_list[[overlap_set_num[j]]])
-          
-          overlap_set_num[j]<-overlap_set_num[i]
-          message('new sets :')
-          print(overlap_set_num)
-          already_set<-c(already_set,j)
-          #update the overlap list
-          
-          
-          
-        }
-        
-      }
-    }
-    
-  }
-  paste(gwas_region.hit.bedunion,overlap_set_num,sep='_')
-},by='gwas_region.hit.bedunion']
-
-res_gwf_loc[str_detect(coverage,'95')]$gwas_region.hit.union|>unique()|>length()
-
-
-#n.extension
-ggplot(gwas_new)+geom_bar(aes(x=coverage,fill=original_cs))+theme_bw()
-
-gwas_new[,n.extension:=.N-sum(original_cs),by='locuscontext_id']
-
-ggplot(unique(gwas_new,by='locuscontext_id'))+
-  geom_boxplot(aes(x=coverage,y=n.extension))+
-  theme_bw()+theme_bw()
-
-
-#recreate top_loci table adding '-' for extended variants
-gwas_new<-gwas_new[,.SD,.SDcols=-c(1,2)]
-colnames(gwas_new)
-gwas_new[,cs_num_ext:=ifelse(original_cs,cs_num,-cs_num)]
-gwas_newtoploci<-dcast(gwas_new[,-c('locuscontext_id','n.overlapping_locus',
-                   'overlapping_locus','overlapping_locus.var')],
-      study+region+variant_id~coverage,
-      value.var = 'cs_num_ext')
-#add pip, z
-gwas_newtoploci<-merge(gwas_newtoploci,gwas[,.(study,variant_id,pip,z)],by=c('study','variant_id'),all.x = T)
-fwrite(gwas_newtoploci,fp(out,'AD_GWAS_finemapping_109_blocks_top_loci_unified_any0.8ANDmin0.5.csv.gz'))
-gwas_newtoploci<-fread(fp(out,'AD_GWAS_finemapping_109_blocks_top_loci_unified_any0.8ANDmin0.5.csv.gz'))
-
-fwrite(gwas_newtoploci,'/adpelle1/export/AD_GWAS_finemapping_109_blocks_top_loci_unified_any0.8ANDmin0.5.csv.gz')
-
-fwrite(gwas_new,fp(out,'AD_GWAS_finemapping_109_blocks_top_loci_unified_any0.8ANDmin0.5_long.csv.gz'))
 
 
 #now add to landscape
