@@ -1,6 +1,6 @@
 setwd('/adpelle1/xqtl-paper-final/')
 out<-'main_text/6_AD_xQTL_genes/staging/gene_priorization_table/'
-source('../alexandre-utils/r_utils.R')
+source('main_text/6_AD_xQTL_genes/staging/gene_priorization_table/gene_prio_utils.R')
 
 
 #update table figure
@@ -179,3 +179,4 @@ p<-ggplot(res_adxlocfge_cont_top)+
   labs(shape='MR significant',size='Total evidence level')
 p
 ggsave(fp(out,'genome_wide_signif_ADloci_xQTL_summary_contextcolors_per_gene_context_group_C1toC4.pdf'),height = 10,width = 8)
+
