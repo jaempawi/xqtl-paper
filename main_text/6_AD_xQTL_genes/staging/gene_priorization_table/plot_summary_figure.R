@@ -53,8 +53,8 @@ unique(res_adxlocf$locus_index)|>length() #94
 #take top gene per locus
 #based on the confidence level
 
-#top gene: based on n xQTL evidence, or being the in top1 cV2F score
-res_adxlocf[gene_name!='',n.study.gene:=sum(n.study,na.rm = TRUE),by=.(gene_name,locus_index)]
+#top gene: based on confidence level and then number of studies/dataset
+res_adxlocf[gene_name!='',n.study.gene:=length(unique(context[evidence_level>0])),by=.(gene_name,locus_index)]
 
 res_adxlocf[gene_name!='',top_gene:=gene_name==gene_name[order(top_confidence,-n.study.gene)][1],by=.(locus_index)]
 
