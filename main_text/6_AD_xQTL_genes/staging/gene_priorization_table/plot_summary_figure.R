@@ -1,6 +1,6 @@
 setwd('/adpelle1/xqtl-paper-final/')
 out<-'main_text/6_AD_xQTL_genes/staging/gene_priorization_table/'
-source('../alexandre-utils/r_utils.R')
+source('main_text/6_AD_xQTL_genes/staging/gene_priorization_table/gene_prio_utils.R')
 
 
 #update table figure
