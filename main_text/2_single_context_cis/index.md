@@ -2,7 +2,7 @@
 
 Single context cis-xQTL fine-mapping chapters:
 
-- [Number of detectable and mappable xQTL loci in single context finemapping](Figure_1b_num_xQTL_loci_single_context)
+- [Detectable and mappable xQTL loci in single context finemapping](Figure_1b_num_xQTL_loci_single_context)
 - [EOO](Figure_eoo)
 - [sLDSC GWAS specific](Figure_sLDSC_GWAS_specific)
 - [sLDSC meta analysis](Figure_sLDSC_meta_analysis)
