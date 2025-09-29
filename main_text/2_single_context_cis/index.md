@@ -6,4 +6,4 @@ Single context cis-xQTL fine-mapping chapters:
 - [EOO](Figure_eoo)
 - [sLDSC GWAS specific](Figure_sLDSC_GWAS_specific)
 - [sLDSC meta analysis](Figure_sLDSC_meta_analysis)
-
+- [Frequency of Events in Distance Category](Figure_S2_single_context_cs_distance)
