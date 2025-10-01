@@ -4,6 +4,32 @@ ps<-function(...)paste0(...)
 library(data.table)
 library(stringr)
 
+#genomics coordinates manipulation ####
+start<-function(x,start_pos=2)sapply(x,function(x)as.numeric(strsplit(x,"\\.|-|:|_|,|\\[|\\]")[[1]][start_pos]))
+end<-function(x,end_pos=3)sapply(x,function(x)as.numeric(strsplit(x,"\\.|-|:|_|,|\\[|\\]")[[1]][end_pos]))
+
+seqid<-function(x,only_num=FALSE){
+  if(only_num){
+    str_extract(x,'[0-9]+')|>as.numeric()
+  }else{
+    sapply(x,function(x)strsplit(x,"\\.|-|:|_|,|\\[|\\]")[[1]][1])
+    
+  }
+}
+
+pos<-function(x)sapply(x,function(x)as.numeric(strsplit(x,"\\.|-|:|_|,|\\[|\\]")[[1]][2]))
+
+
+ref<-function(x)sapply(x,function(x){
+  vec=strsplit(x,"-|:|_|,|\\[|\\]")[[1]]
+  return(vec[length(vec)-1])
+})
+
+alt<-function(x)sapply(x,function(x){
+  vec=strsplit(x,"-|:|_|,|\\[|\\]")[[1]]
+  return(vec[length(vec)])
+})
+
 #get Unified locis
 #loci: data.table with 'variant_id' and $locus_col
 #locus_col: column in data.table containing the locus id to overlap.

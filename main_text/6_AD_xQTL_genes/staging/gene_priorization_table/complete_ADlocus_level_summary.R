@@ -6,7 +6,6 @@
 #- columns_metadata.tsv containing all columns to keep for the excel sheets, with associated metadata (column width, coloring..)
 #- excel_metadata.tsv containing some meta information for the excel sheet construction
 #- pattern_coloring.tsv containing all pattern to color in the excel sheet
-
 #1 metadata is optional
 #- long_table_columns_selection.csv to generate a long table with selected columns from the table res_allanalysis_ADloci_overlap.csv.gz generated in step III 
 #(in this table each row is a variant-ADlocus-Method-context-gene_name information, and so facilitate querying informations ) 
@@ -203,9 +202,11 @@ res_tsf[,region:=gene_ID]
 res_tsf[,locuscontext_id:=paste(event_ID,region,credibleset,sep='_')]
 res_tsf[,gene_ID:=str_extract(event_ID,'ENSG[0-9]+')]
 res_tsf[is.na(gene_ID),.(resource,variant_ID,event_ID,region)]#for gpqtl need mapping
-gpmap<-fread('/data/gpQTL/gpAnnotation_id.csv')
+gpmap<-fread('/data/gpQTL/gp_coordinates_clean.txt')
+gpmap[str_detect(ensembl_id,';'),ensembl_id:=str_extract(ensembl_id,'ENSG[0-9]+')]
 res_tsf[is.na(gene_ID),gp_ID:=str_extract(event_ID,'gp_[0-9]+')]
-res_tsf[is.na(gene_ID),gene_ID:=gpmap[gp_ID,on='gpID']$EnsemblFirst]
+
+res_tsf[is.na(gene_ID),gene_ID:=gpmap[gp_ID,on='ID']$ensembl_id]
 res_tsf[!is.na(gp_ID)]
 res_tsf<-res_tsf[,-'gp_ID']
 fwrite(res_tsf,fp(out,'res_all_transgene_single_context_finemapping_cs50orgreater.csv.gz'))
@@ -502,6 +503,7 @@ res_cfs[event_ID=='ROSMAP_mQTL',event_ID:='ROSMAP_DLPFC_mQTL']
 res_cfs[event_ID=='ROSMAP_haQTL',event_ID:='ROSMAP_DLPFC_haQTL']
 res_cfs[,context:=event_ID]
 unique(res_cfs$context)
+unique(res_cfs$ge)
 
 unique(res_cfs$CoS)|>length()
 res_cfs[is.na(CoS)]
@@ -668,6 +670,23 @@ fwrite(res_mrtwas[(TWAS_signif)],fp(out,'res_AD_XWAS_MR_filtered_TWAS_sig.csv.gz
 
 mtd[Method%in%c('twas','MR'),summary_file:=fp(out,'res_AD_XWAS_MR_filtered_TWAS_sig.csv.gz')]
 
+#cTWAS####
+#$cs column not left blank (having values such as L1 L2 L3... 
+#although the $pip can be small) and also check $pip column values being greater than 0.75
+contexts<-fread(fp(out,'contexts_metadata.csv'))
+res_ctwas<-fread(file.path('/data',mtd[Method=='cTWAS']$Path))
+
+res_ctwas[cs!=''&susie_pip>0.75]$molecular_id|>unique() #76
+res_ctwas[cs!=''&susie_pip>0.75]$context|>unique()
+
+setdiff(res_ctwas$context,contexts$context)#OK
+setnames(res_ctwas,'molecular_id','gene_ID')
+
+res_ctwasf<-res_ctwas[cs!=''&susie_pip>0.75]
+res_ctwasf<-res_ctwasf[,-c('group','type')]
+fwrite(res_ctwasf,fp(out,'res_AD_cTWAS_pip075.csv.gz'))
+
+mtd[Method%in%c('cTWAS'),summary_file:=fp(out,'res_AD_cTWAS_pip075.csv.gz')]
 
 
 #Metadata of harmonized analysis check and saving####
@@ -689,7 +708,7 @@ unique(mtd[!is.na(summary_file)][,.(Method,summary_file)])[,{
 },by='summary_file']
 
 #ok except TWAS/MR for variant_ID and locuscontext_id but normal
-mtd[,variant_level_method:=!Method%in%c('MR','twas')]
+mtd[,variant_level_method:=!Method%in%c('MR','twas','cTWAS')]
 fwrite(mtd,'metadata_analysis.csv')
 mtd<-fread('metadata_analysis.csv')
 mtd[summary_file=='']
@@ -1003,7 +1022,7 @@ res_adx[(is.in.ad.locus)]|>nrow()
 #for twas, get ADlocus-gene connection to annotate 
 summary_file=mtd[Method=='twas']$summary_file[1]
 summary_file_ad<-paste0(tools::file_path_sans_ext(summary_file,compression = T),'_overlapADloci.csv.gz')
-update_twasad<-TRUE
+update_twasad<-FALSE
 if(!file.exists(summary_file_ad)|update_twasad){
   res_adgenes<-unique(res_adx[,.(ADlocus,gene_ID,ADlocusID,locus_index)])
   
@@ -1025,9 +1044,56 @@ res_twadf[is.na(MR_signif),MR_signif:=FALSE]
 #bind it
 res_adx<-rbind(res_adx,res_twadf[,Method:='TWAS/MR'],fill=T)
 
+#add cTWAS
+summary_file=mtd[Method=='cTWAS']$summary_file[1]
+summary_file_ad<-paste0(tools::file_path_sans_ext(summary_file,compression = T),'_overlapADloci.csv.gz')
+update_ctwasad<-FALSE
+if(!file.exists(summary_file_ad)|update_ctwasad){
+  res_adgenes<-unique(res_adx[,.(ADlocus,gene_ID,ADlocusID,locus_index)])
+  
+  
+  res_ctw<-fread(summary_file)
+  res_ctwad<-merge(res_ctw[,-c('ADlocus','ADlocusID','locus_index')],res_adgenes,by='gene_ID',all.x = T,allow.cartesian = T)
+  res_ctwadf<-res_ctwad[!is.na(ADlocus)]
+  unique(res_ctwadf$gene_ID)
+  fwrite(res_ctwadf,summary_file_ad)
+  mtd[Method%in%c('cTWAS'),summary_file_ad:=..summary_file_ad]
+  fwrite(mtd,'metadata_analysis.csv')
+}
+
+# #lacking AD genes are of interest ?
+# trans<-fread('/data/resource/references/Homo_sapiens.GRCh38.103.chr.reformatted.collapse_only.gene.region_list')
+# trans[setdiff(res_ctwad$gene_ID,res_ctwadf$gene_ID),on='gene_id']$gene_name
+# # [1] "EPDR1"      "MAP3K1"     "GTPBP1"     "RBX1"       "ZFYVE21"    "RIPK2"      "PLA2G12A"   "HS3ST3B1"   "UBA2"      
+# # [10] "COL5A1"     "RPS15A"     "PLXNC1"     "ABCA8"      "ZCCHC24"    "SMG8"       "TRANK1"     "PIK3CD"     "SLC16A11"  
+# # [19] "PACS2"      "GPR141"     "XPNPEP3"    "IGHG2"      "AP000295.1" "IFNAR2"     "EEF1G"   
+# msig<-fread('/adpelle1/xqtl-paper/resources/all_CPandGOs_gene_and_genesets.csv.gz')
+# resor<-OR3(trans[unique(res_ctwad$gene_ID),on='gene_id']$gene_name,split(msig$gene,msig$pathway),background =unique(msig$gene) )
+# resor #yes participate to e.g. GOBP_IMMUNE_RESPONSE_REGULATING_SIGNALING_PATHWAY (PIK3CD,MAP3K1,IGHG2); GOBP_POSITIVE_REGULATION_OF_PROTEOLYSIS (RBX1,RIPK2)
+# 
+# #does the CS of these genes overlap with our AD loci?
+# res_ctwadnf<-res_ctwad[!gene_ID%in%res_ctwadf$gene_ID]
+# res_ctwasal<-fread('/data/analysis_result/ctwas/archive/export/summary/ctwas_single_fmprs_merged.tsv.gz')
+# res_ctwasalf<-merge(res_ctwasal,unique(res_ctwadnf[,.(region_id,cs)]))
+# res_ctwasalf[type=='SNP',variant_ID:=paste0('chr',id)]
+# unique(res_ctwasalf,by=c('region_id','cs'))
+# res_ctwasalfadloci<-merge(res_ctwasalf,res_adfv,by='variant_ID')
+# res_ctwadnf[cs=='L1'&region_id=='17_57489969_60570445']
+# trans['ENSG00000167447',on='gene_id']#SMG8
+# res_adx[locus_index==144&cV2F_rank==1][,.(Method,gene_ID,context)]
+# 
+
+
+#bind it
+res_ctwadf<-fread(summary_file_ad)
+
+res_adx<-rbind(res_adx,res_ctwadf[,Method:='cTWAS'],fill=T)
+
 #populate TWAS info at variant level
 res_adx[,TWAS_signif:=any(TWAS_signif),by=.(ADlocus,gene_ID,context,gwas_source)]
 res_adx[,MR_signif:=any(MR_signif),by=.(ADlocus,gene_ID,context,gwas_source)]
+
+res_adx[,cTWAS_signif:=any(Method=='cTWAS'),by=.(ADlocus,gene_ID,context)]
 
 
 table(unique(res_adx,by=c('locuscontext_id','ADlocus','gene_ID','context'))$Method)
@@ -1041,8 +1107,6 @@ table(unique(res_adx,by=c('locuscontext_id','ADlocus','gene_ID','context'))$Meth
 # 661 
 #add lacking contexts
 res_adx[is.na(context)]$locuscontext_id
-res_adx[is.na(context),context:=str_extract(locuscontext_id,'metabolome')]
-
 
 
 #split contexts FOR sQTL: if 'UP' put as u-sQTL (Unproductive sQTL), if 'PR' as p-sQTL (productive)
@@ -1061,7 +1125,6 @@ res_adx<-merge(res_adx[,-c('context_broad','context_short')],
 table(res_adx[,.(Method,context)])
 
 table(res_adx[,.(Method,context_short)])
-
 
 
 #add GENE info tss /tes
@@ -1088,16 +1151,18 @@ res_adx[,pos:=pos(variant_ID[1]),by='variant_ID']
 res_adx[,effect_allele:=alt(variant_ID[1]),by='variant_ID']
 res_adx[,distance_from_tss:=pos-tss]
 res_adx[,distance_from_tes:=pos-tes]
-
-
+res_adx[str_detect(gene_ID,';')]$gene_ID|>unique()
+res_adx[str_detect(gene_ID,';')]$Method|>table()
+res_adx[str_detect(gene_ID,'ENSG')&is.na(gene_name)]
 #associate to a gene each epiQTL: populate gene name for epiQTL if geneQTL overlap the locus
-xqtl_methods<-c('fSuSiE_finemapping','single_context_finemapping',
-                'multi_context_finemapping','AD_xQTL_colocalization','TWAS/MR','sn_sQTL')
+epi_methods<-c('fSuSiE_finemapping','Coloc')
+geneqtl_methods<-c('single_context_finemapping',
+                'multi_context_finemapping','AD_xQTL_colocalization','TWAS/MR')
 
-res_adx<-rbind(res_adx[Method!='fSuSiE_finemapping'|is.na(Method)],
-               res_adx[Method=='fSuSiE_finemapping']|>split(by=c('locus_index','context'))|>lapply(function(epi){
+res_adx<-rbind(res_adx[!Method%in%epi_methods|is.na(Method)],
+               res_adx[Method%in%epi_methods]|>split(by=c('locus_index','context'))|>lapply(function(epi){
                  epivars<-epi$variant_ID
-                 genes_overlapping_epi<-res_adx[Method%in%setdiff(xqtl_methods,'fSuSiE_finemapping')][variant_ID%in%epivars]$gene_name|>unique()
+                 genes_overlapping_epi<-res_adx[Method%in%geneqtl_methods][variant_ID%in%epivars]$gene_name|>unique()
                  
                  epi_genes<-rbindlist(lapply(genes_overlapping_epi,function(g)epi[,gene_name:=g]))
                  return(epi_genes)
@@ -1312,4 +1377,7 @@ for(cont in colsmtd[wildcard=='context_broad2']$r_name){
 
 
 saveWorkbook(wb, 'unified_AD_loci_xQTL_summary.xlsx', overwrite = TRUE)
+
+#metadata compression
+system('tar -cvf metadata.tar pattern_coloring.tsv metadata_analysis.csv long_table_columns_selection.csv excel_metadata.tsv contexts_metadata.csv columns_metadata.tsv')
 
