@@ -52,3 +52,9 @@ rsconnect/
 _build/
 
 **/.ipynb_checkpoints
+
+
+# remove icloud
+
+*.icloud
+
