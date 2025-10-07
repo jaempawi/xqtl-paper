@@ -1,9 +1,7 @@
-# Table of contents
-# Learn more at https://jupyterbook.org/customize/toc.html
 format: jb-book
 root: README
 chapters:
-  - file: main_text/1_project_overview/index  # or .ipynb
+  - file: main_text/1_project_overview/index
   - file: main_text/2_single_context_cis/index
     sections:
       - file: main_text/2_single_context_cis/Figure_1b_num_xQTL_loci_single_context
