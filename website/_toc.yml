@@ -3,32 +3,32 @@
 format: jb-book
 root: README
 chapters:
-  - file: main_text/1_project_overview/index.md  # or .ipynb
-  - file: main_text/2_single_context_cis/index.md
+  - file: main_text/1_project_overview/index  # or .ipynb
+  - file: main_text/2_single_context_cis/index
     sections:
-      - file: main_text/2_single_context_cis/Figure_1b_num_xQTL_loci_single_context.ipynb
-      - file: main_text/2_single_context_cis/Figure_EOO.ipynb
-      - file: main_text/2_single_context_cis/Figure_S2_single_context_cs_distance.ipynb
-      - file: main_text/2_single_context_cis/Figure_sLDSC_GWAS_specific.ipynb
-      - file: main_text/2_single_context_cis/Figure_sLDSC_meta_analysis.ipynb
-  - file: main_text/3_single_context_multigene_trans/index.md
-  - file: main_text/4_multi_context/index.md
+      - file: main_text/2_single_context_cis/Figure_1b_num_xQTL_loci_single_context
+      - file: main_text/2_single_context_cis/Figure_EOO
+      - file: main_text/2_single_context_cis/Figure_S2_single_context_cs_distance
+      - file: main_text/2_single_context_cis/Figure_sLDSC_GWAS_specific
+      - file: main_text/2_single_context_cis/Figure_sLDSC_meta_analysis
+  - file: main_text/3_single_context_multigene_trans/index
+  - file: main_text/4_multi_context/index
     sections:
-      - file: main_text/4_multi_context/Figure_2b_num_xQTL_loci_multi_context.ipynb
-      - file: main_text/4_multi_context/Figure_2c_multicontext_effect_sign.ipynb
-  - file: main_text/5_AD_xQTL_integration/index.md
+      - file: main_text/4_multi_context/Figure_2b_num_xQTL_loci_multi_context
+      - file: main_text/4_multi_context/Figure_2c_multicontext_effect_sign
+  - file: main_text/5_AD_xQTL_integration/index
     sections:
-      - file: main_text/5_AD_xQTL_integration/Figure_5a_AD_GWAS_loci_harmonized.ipynb
-      - file: main_text/5_AD_xQTL_integration/Figure_5b_AD_GWAS_loci_properties.ipynb
-      - file: main_text/5_AD_xQTL_integration/Figure_5c_AD_loci_xQTL_annotated.ipynb
-      - file: main_text/5_AD_xQTL_integration/Figure_5d_AD_loci_table_summary.ipynb
-      - file: main_text/5_AD_xQTL_integration/Figure_5e_GSEA.ipynb
-      - file: main_text/5_AD_xQTL_integration/Figure_5f_PPI.ipynb
-      - file: main_text/5_AD_xQTL_integration/Figure_5g_cV2F.ipynb
-  - file: main_text/6_AD_xQTL_genes/index.md
+      - file: main_text/5_AD_xQTL_integration/Figure_5a_AD_GWAS_loci_harmonized
+      - file: main_text/5_AD_xQTL_integration/Figure_5b_AD_GWAS_loci_properties
+      - file: main_text/5_AD_xQTL_integration/Figure_5c_AD_loci_xQTL_annotated
+      - file: main_text/5_AD_xQTL_integration/Figure_5d_AD_loci_table_summary
+      - file: main_text/5_AD_xQTL_integration/Figure_5e_GSEA
+      - file: main_text/5_AD_xQTL_integration/Figure_5f_PPI
+      - file: main_text/5_AD_xQTL_integration/Figure_5g_cV2F
+  - file: main_text/6_AD_xQTL_genes/index
     sections:
-      - file: main_text/6_AD_xQTL_genes/Figure_6_AD_loci_table_visualization.ipynb
-  - file: main_text/7_AD_gene_prioritized/index.md
+      - file: main_text/6_AD_xQTL_genes/Figure_6_AD_loci_table_visualization
+  - file: main_text/7_AD_gene_prioritized/index
     sections:
-      - file: main_text/7_AD_gene_prioritized/APP_case_example.ipynb
-      - file: main_text/7_AD_gene_prioritized/ZYX_case_example.ipynb
+      - file: main_text/7_AD_gene_prioritized/APP_case_example
+      - file: main_text/7_AD_gene_prioritized/ZYX_case_example
