@@ -9,3 +9,4 @@ This chapter includes the following notebooks:
 - [Gene Set Enrichment Analysis for AD Risk Genes](Figure_5e_GSEA)
 - [PPI Networks for Selected AD Risk Genes in xQTL Loci](Figure_5f_PPI)
 - [Consensus Variant-to-Function Score for AD](Figure_5g_cV2F)
+- [GWAS EADB watershed](Figure_5h_GWAS_enrichment)
