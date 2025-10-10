@@ -20,7 +20,7 @@ table(res_adx$context_short)
 #group contexts better: 
 
 res_adx[Method%in%'TWAS/MR',evidence_type:='twas']
-res_adx[str_detect(Method,'finemapping')&Method!='AD_GWAS_finemapping',evidence_type:='finemapping']
+res_adx[str_detect(Method,'finemapping')&!Method%in%c('AD_GWAS_finemapping','trans_finemapping'),evidence_type:='finemapping']
 res_adx[str_detect(str_to_lower(Method),'coloc'),evidence_type:='coloc']
 
 res_adx[,evidence_level:=NULL]
@@ -49,6 +49,7 @@ res_adxloc[,n.study:=length(unique(context[evidence_level>0])),
 res_adxlocf<-res_adxloc[(genomewide_sig_loc)][evidence_level>0]
 unique(res_adxlocf$locus_gene_variant)#622
 unique(res_adxlocf$locus_index)|>length() #94
+unique(res_adxlocf$Method)
 
 #take top gene per locus
 #based on the confidence level
