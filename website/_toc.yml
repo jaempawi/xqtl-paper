@@ -14,7 +14,7 @@ chapters:
     sections:
       - file: main_text/4_multi_context/Figure_2b_num_xQTL_loci_multi_context
       - file: main_text/4_multi_context/Figure_2c_multicontext_effect_sign
-      - file: main_text/4_multi_context/Figure_watershed_posterior
+      - file: main_text/4_multi_context/Figure_watershed_posterior_plot
   - file: main_text/5_AD_xQTL_integration/index
     sections:
       - file: main_text/5_AD_xQTL_integration/Figure_5a_AD_GWAS_loci_harmonized
