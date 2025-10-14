@@ -1274,7 +1274,6 @@ res_loc[,gwas_significance:=ifelse(gwas_significance=='ns','p<1e-5',ifelse(gwas_
 ggplot(res_loc)+geom_bar(aes(x=top_confidence,fill=gwas_significance))+theme_bw()
 
 res_loc[gwas_significance=='p<5e-8']|>nrow()
-#new Loci
 
 #Main Excel Sheet creation ####
 #get the columns metadata ready

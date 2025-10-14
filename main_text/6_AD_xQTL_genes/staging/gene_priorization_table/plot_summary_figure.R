@@ -197,3 +197,51 @@ p<-ggplot(res_adxlocfge_cont_top)+
   labs(size='# datasets',col='Confidence level')+
   scale_color_manual(values = conf_colors$fill_color)
 p
+
+#sep causal vs correlated
+#C6 is dropped, C1/C2/C3 are called causal, and C4/C5 are called “correlative” or “correlated”
+res_adxlocfge_cont_topf<-res_adxlocfge_cont_top[confidence_lvl_group!='C6']
+res_adxlocfge_cont_topf[,confidence_cat_group:=ifelse(confidence_lvl_group%in%c('C1',"C2",'C3'),'putative causal','correlated')]
+
+p<-ggplot(res_adxlocfge_cont_topf)+
+  geom_point(aes(y=gene_name,x=context_group,
+                 size=n_study_group,
+                 col=confidence_cat_group))+
+  facet_grid(chr~'',scales = 'free',space = 'free')+scale_size(range = c(1.5,5))+theme_minimal()+
+  scale_x_discrete(guide = guide_axis(angle = 90))+
+  theme(strip.text.x = element_text(angle = 90))+
+  labs(size='# datasets',col='Confidence level')+
+  scale_color_manual(values = c('cyan3','red'))
+p
+
+res_adxlocfge_cont_topf[,confidence_cat_group:=ifelse(confidence_lvl_group%in%c('C1',"C2"),'Causal',ifelse(confidence_lvl_group=='C3','Putative Causal','Correlated'))]
+res_adxlocfge_cont_topf[,confidence_cat_group:=factor(confidence_cat_group,levels = c('Causal','Putative Causal','Correlated'))]
+
+p<-ggplot(res_adxlocfge_cont_topf)+
+  geom_point(aes(y=gene_name,x=context_group,
+                 size=n_study_group,
+                 col=confidence_cat_group))+
+  facet_grid(chr~'',scales = 'free',space = 'free')+scale_size(range = c(1.5,5))+theme_minimal()+
+  scale_x_discrete(guide = guide_axis(angle = 90))+
+  theme(strip.text.x = element_text(angle = 90))+
+  labs(size='# datasets',col='Confidence level')+
+  scale_color_manual(values = c('red','purple','cyan3'))
+p
+
+
+
+p<-ggplot(res_adxlocfge_cont_topf)+
+  geom_point(aes(y=gene_name,x=context_group,
+                 size=n_study_group,
+                 col=confidence_lvl_group))+
+  facet_grid(chr~'',scales = 'free',space = 'free')+scale_size(range = c(1.5,5))+theme_minimal()+
+  # Add stars for selected confidence_cat_group
+  geom_text(
+    data = subset(res_adxlocfge_cont_topf, confidence_cat_group == "causal"),
+    aes(x = context_group, y = gene_name, label = "*"),
+    color = "white", size = 2)+
+  scale_x_discrete(guide = guide_axis(angle = 90))+
+  theme(strip.text.x = element_text(angle = 90))+
+  labs(size='# datasets',col='Confidence level')+
+  scale_color_manual(values = conf_colors$fill_color[-6])
+p
