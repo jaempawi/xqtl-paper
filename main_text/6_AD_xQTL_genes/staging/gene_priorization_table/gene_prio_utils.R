@@ -4,6 +4,27 @@ ps<-function(...)paste0(...)
 library(data.table)
 library(stringr)
 library(ggplot2)
+library(tidyverse)
+
+get_gene_id <- function(gene_name){
+  gene_ref <- read.table('/data/resource/references//Homo_sapiens.GRCh38.103.chr.reformatted.collapse_only.gene.region_list', header = F)
+  gene_name = gene_name
+  gene_id = gene_ref %>% filter(V5 == gene_name) %>% pull(V4)
+  return(gene_id)
+}
+
+
+get_gene_info <- function(gene_id = NULL, gene_name = NULL){
+  if(is.null(gene_id)) gene_id <- get_gene_id(gene_name)
+  FunGen_gene <- fread("/data/interactive_analysis/rf2872/resource/Gene_Block.tsv")
+  gene_info <- FunGen_gene %>% filter(region_id == gene_id) %>% mutate(gene_name = gene_name)
+  target_LD_ids <- gene_info%>% pull(LD_matrix_id) %>% str_split(., ',', simplify = T) %>% unlist
+  target_TAD_ids <- gene_info%>% pull(TADB_id) %>% str_split(., ',', simplify = T) %>% unlist
+  target_sums_ids <- gene_info %>% pull(LD_sumstats_id) %>% str_split(., ',', simplify = T) %>% unlist
+  gene_region <- paste0(gene_info[['#chr']], ":", gene_info[['start']], "-", gene_info[['end']])
+  return(list(gene_info = gene_info, target_LD_ids = target_LD_ids, target_sums_ids = target_sums_ids, gene_region = gene_region, target_TAD_ids = target_TAD_ids))
+}
+
 
 #genomics coordinates manipulation ####
 start<-function(x,start_pos=2)sapply(x,function(x)as.numeric(strsplit(x,"\\.|-|:|_|,|\\[|\\]")[[1]][start_pos]))
