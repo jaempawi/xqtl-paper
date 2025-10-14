@@ -7,10 +7,9 @@ source('../alexandre-utils/r_utils.R')
 res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
 
 #add the confidence level
-res_adxub<-fread(fp(out,'res_AD_variants_xQTL.csv.gz'))
-res_adxub[,top_confidence:=str_extract(xQTL_effects,'C[0-9]')]
 
-res_adx<-merge(res_adx,unique(res_adxub[order(locus_index,gene_name,confidence_lvl),.(gene_name,locus_index,context_short,confidence_lvl,top_confidence)]),all.x = T,allow.cartesian = TRUE)
+res_adx[,top_confidence:=str_extract(xQTL_effects,'C[0-9]')]
+
 
 #xQTL evidence summary dot plot at locus level
 #for each QTL evidence type put in 3 cat : absent, present, high, 
@@ -34,6 +33,7 @@ res_adx[order(locus_gene,cV2F_rank),locus_gene_variant:=paste(locus_gene,variant
 
 #Genome wide signif hits
 res_adx[,genomewide_sig_loc:=any(min_pval<5e-8),by='locus_gene']
+
 
 res_adx[context_short=='Ast caQTL']
 #get at locus level
@@ -166,6 +166,10 @@ ggsave(fp(out,'genome_wide_signif_ADloci_xQTL_summary_contextcolors_per_gene_con
 #subset gene to top 2 tiers: with C1/2/3/4 confidence
 unique(res_adxlocfge[order(confidence_lvl)],by='gene_name')$confidence_lvl|>table()
 
+#add also top confidence score per group and n study
+res_adxlocfge[,n_study_group:=length(unique(context[evidence_level>0])),by=.(gene_name,context_group)]
+res_adxlocfge[,confidence_lvl_group:=sort(confidence_lvl)[1],by=.(gene_name,context_group)]
+
 res_adxlocfge_cont_top<-unique(res_adxlocfge[evidence_level!=0][n.study.gene>0],by=c('gene_name','locus_index','evidence_type','context_group'))[gene_name%in%gene_name[top_confidence%in%c('C1','C2','C3','C4')]]
 
 
@@ -180,3 +184,16 @@ p<-ggplot(res_adxlocfge_cont_top)+
   labs(shape='MR significant',size='Total evidence level')
 p
 ggsave(fp(out,'genome_wide_signif_ADloci_xQTL_summary_contextcolors_per_gene_context_group_C1toC4.pdf'),height = 10,width = 8)
+
+# summarize using confidence score instead and nstudy
+conf_colors<-fread(fp(out,'pattern_coloring.tsv'))[pattern%in%paste0('C',1:6)]
+p<-ggplot(res_adxlocfge_cont_top)+
+  geom_point(aes(y=gene_name,x=context_group,
+                 size=n_study_group,
+                 col=confidence_lvl_group))+
+  facet_grid(chr~'',scales = 'free',space = 'free')+scale_size(range = c(1.5,5))+theme_minimal()+
+  scale_x_discrete(guide = guide_axis(angle = 90))+
+  theme(strip.text.x = element_text(angle = 90))+
+  labs(size='# datasets',col='Confidence level')+
+  scale_color_manual(values = conf_colors$fill_color)
+p

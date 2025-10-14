@@ -1192,9 +1192,20 @@ table(res_adx$qtl_type)
 res_adx[twas_z==Inf,twas_z:=max(abs(res_adx[!is.infinite(twas_z)&!is.na(twas_z)][['twas_z']]),na.rm = TRUE)]
 res_adx[twas_z==-Inf,twas_z:=-max(abs(res_adx[!is.infinite(twas_z)&!is.na(twas_z)][['twas_z']]),na.rm = TRUE)]
 
+
+#Summarize table at variant level - gene -main context level
+#here we create the confidence score per variant-gene-context short
+unique(res_adx[,.(context,context_short)])
+
+res_adx<-SummarizeTable(res_adx,group.by = 'context_short')
+colnames(res_adx)
+
+
 fwrite(res_adx,fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
 res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
 table(res_adx$Method)
+
+
 
 #OPTIONAL
 #keep only columns of interest
@@ -1216,80 +1227,6 @@ if(file.exists('long_table_columns_selection.csv')){
 
 }
 
-# locus level summary
-# #outputs: ADlocus ADlocus_event ADmethod ADvariants gene context locus_event method n_variants others_info (n_overlap, pip, TWAS_Z..)
-# #res_adxf[,leading_gwas_variant:=variant_ID[order(-max_variant_inclusion_probability)][1],by='ADlocus']
-# res_adxl<-unique(res_adxf[order(-max_variant_inclusion_probability,-PIP,-vcp,-abs(max_zscore))],by=c('ADlocus',
-#                                                                    'locuscontext_id',
-#                                                                    'gene_ID',
-#                                                                    'context','Method'))
-# 
-# 
-# 
-# 
-# 
-# res_adxl<-res_adxl[order(locus_index)]
-# res_adxl
-# fwrite(res_adxl,fp(out,'res_allanalysis_ADloci_overlap_locus_summary.csv'))
-
-# res_adxl$locus_index|>unique()|>length()
-# 
-# #genome wide signif only
-# res_adxlf1<-res_adxl[leading_gwas_variant_pval<5e-8]
-# fwrite(res_adxlf1,fp(out,'res_allanalysis_ADloci_overlap_locus_summary_GWASpval_genomewide_signif.csv'))
-# 
-# #cs95 only
-# res_adxlf2<-res_adxl[susie_coverage=='cs95']
-# fwrite(res_adxlf2,fp(out,'res_allanalysis_ADloci_overlap_locus_summary_GWASpval_cs95_only.csv'))
-
-
-
-#   AD loci sanity check####
-#in coloc only, how many from one context only?
-# gwas_methods<-c('AD_GWAS_finemapping','AD_meta_colocalization',
-#                 'AD_xQTL_colocalization','Coloc')
-# res_adxa<-res_adx[Method%in%gwas_methods]
-# res_adxa[,ADxQTLcoloc_only:=all(Method=='AD_xQTL_colocalization')|all(Method=='Coloc'),by='ADlocus']
-# res_adxa<-res_adxa[(ADxQTLcoloc_only)][Method=='AD_xQTL_colocalization'][!str_detect(context,'^AD')]
-# table(res_adxa$context)
-# 
-# res_adxa[,onecontext_only:=length(unique(context[!str_detect(context,'^AD')]))==1,by='ADlocus']
-# ggplot(unique(res_adxa,by='ADlocus'))+
-#   geom_bar(aes(x=context,fill=onecontext_only))+
-#   scale_x_discrete(guide=guide_axis(angle=60))+ggtitle('Coloc specific AD locus')+labs(fill='found only in this context')
-# 
-# res_adx[locus_index==74]$context|>unique()
-# res_adx[locus_index%in%c(73,74,75)][,.(locus_index,chr,pos)][order(locus_index,pos)]|>unique(by='locus_index')
-# 
-# res_adx[context_broad=='bulk_brain_sQTL'][str_detect(Method,'coloc')]$event_ID
-# 
-# #stats loci
-# #n loci (+\- xQTL annotated)
-# #n genome wide signif (+\- xQTL annotated)
-# # cs95 (+\- xQTL annotated)
-# res_adx[,xqtl_annotated_locus:=any(!is.na(context)&context!=''&!str_detect(context,'^AD')),by='ADlocus']
-# stats<-rbindlist(list(unique(res_adx[order(-xqtl_annotated_locus)],by='ADlocus')[,stringence:='p<1*10-5'],
-#                       unique(res_adx[min_pval<5e-8][order(-xqtl_annotated_locus)][,stringence:='p<5*10-8'],by='ADlocus'),
-#                       unique(res_adx[susie_coverage=='cs95'][order(-xqtl_annotated_locus)][,stringence:='singlegwas_susie_rss_cs95'],
-#                              by='ADlocus')))
-# 
-# 
-# ggplot(stats)+geom_bar(aes(x=stringence,fill=xqtl_annotated_locus))+labs(y='Number of AD Loci')
-# 
-# #distrib distance betweem loci
-# #max pos locus n minus min pos locus n+1
-# dists<-unique(res_adx[order(locus_index,pos)],by=c('ADlocus','pos'))[,.(locus_index,
-#                                                                         distance_to_next=sapply(locus_index,function(i){
-#   max_pos<-max(pos[locus_index==i])
-#   min_pos_next<-min(pos[locus_index==i+1])
-#   return(min_pos_next-max_pos)
-#   
-# })),by='chr']|>unique()
-# ggplot(dists[distance_to_next!=-Inf])+
-#   geom_histogram(aes(x=distance_to_next))+scale_x_log10()
-# 
-# dists[distance_to_next<1e6]$locus_index|>unique()|>length()
-# dists$locus_index|>unique()|>length()
 
 
 
@@ -1297,17 +1234,16 @@ if(file.exists('long_table_columns_selection.csv')){
 #IV) WIDE TABLE CREATION  ####
 res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
 
-unique(res_adx[,.(context,context_short)])
+#save confidence score
 
-
-res_adxub<-WideTable(res_adx,group.by = 'context_short',split.by=c('context_broad2','qtl_type'))
+res_adxub<-WideTable(res_adx,split.by=c('context_broad2','qtl_type'))
 
 fwrite(res_adxub,fp(out,'res_AD_variants_xQTL.csv.gz'))
 res_adxub<-fread(fp(out,'res_AD_variants_xQTL.csv.gz'))
 
 #FILTER: keep only variants with GWAS PIP/VCP > 0.1, for maximum of 5
 # if non of the variant has GWAS PIP/VCP > 0.1 we just show top one based on GWAS PIP/VCP and on xQTLPIP/VCP
-res_adxub[,top_variants:=((max_variant_inclusion_probability>=0.1)&(max_variant_inclusion_probability_rank<=5|cV2F_rank<=5))|max_variant_inclusion_probability_rank==1|variant_rank_xqtl==1|cV2F_rank==1|(order(pval)<=1&!is.na(pval)),by='ADlocus']
+res_adxub[,top_variants:=((max_variant_inclusion_probability>=0.1)&(max_variant_inclusion_probability_rank<=5|cV2F_rank<=5))|max_variant_inclusion_probability_rank==1|variant_rank_xqtl==1|cV2F_rank==1|(rank(pval)<=1&!is.na(pval)),by='ADlocus']
 res_adxubf<-res_adxub[(top_variants)][!is.na(locus_index)]
 nrow(res_adxubf)#3073
 unique(res_adxubf$locus_index)
@@ -1364,7 +1300,10 @@ for(cont in colsmtd[wildcard=='context_broad2']$r_name){
   message(cont)
   res_adxc<-res_adx[context_broad2==cont]
   
-  res_adxcub<-WideTable(res_adxc,group.by = 'qtl_type')
+  
+  res_adxc<-SummarizeTable(res_adxc,group.by = 'qtl_type')
+  
+  res_adxcub<-WideTable(res_adxc)
   
     
   #FILTER: keep only variants with GWAS PIP/VCP > 0.1, for maximum of 5
@@ -1391,7 +1330,9 @@ for(cont in colsmtd[wildcard=='context_broad2']$r_name){
 }
 
 
-saveWorkbook(wb, 'unified_AD_loci_xQTL_summary.xlsx', overwrite = TRUE)
+saveWorkbook(wb, '~/adpelle1/xqtl-resources/data/genes/unified_AD_loci_xQTL_summary.xlsx', overwrite = TRUE)
+
+
 
 #metadata compression
 system('tar -cvf metadata.tar pattern_coloring.tsv metadata_analysis.csv long_table_columns_selection.csv excel_metadata.tsv contexts_metadata.csv columns_metadata.tsv')

@@ -1,17 +1,19 @@
-setwd('/adpelle1/xqtl-paper/')
+setwd('/adpelle1/xqtl-paper-final/main_text/6_AD_xQTL_genes/staging/gene_priorization_table/')
 
-source('../../../alexandre-utils/r_utils.R')
-source('codes/qtl_utils.R')
+source('gene_prio_utils.R')
 
 # install.packages(c('openxlsx','ggraph'))
 
 
 out<-'analyses_summary/'
 
-res_adxf<-fread('analyses_summary/res_allanalysis_ADloci_overlap_selectedcols.csv.gz')
+res_adxf<-fread('~/adpelle1/xqtl-resources/data/genes/res_allanalysis_ADloci_overlap_selectedcols.csv.gz')
 
 #all loci (with GWAS pval<1e-5)
-unique(res_adxf$gene_name)|>length()#444 genes 
+unique(res_adxf$gene_name)|>length()#1128 genes
+table(unique(res_adxf,by=c('gene_name','Method'))$Method)
+unique(res_adxf[Method!='trans_finemapping']$gene_name)|>length()#546 genes
+
 unique(res_adxf$locus_index)|>length()#192 loci 
 unique(res_adxf$variant_ID)|>length()#11553 variants
 unique(res_adxf[max_variant_inclusion_probability>0.1]$variant_ID)|>length()#697 variants
