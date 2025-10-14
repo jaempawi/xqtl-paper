@@ -1193,7 +1193,7 @@ res_adx[twas_z==Inf,twas_z:=max(abs(res_adx[!is.infinite(twas_z)&!is.na(twas_z)]
 res_adx[twas_z==-Inf,twas_z:=-max(abs(res_adx[!is.infinite(twas_z)&!is.na(twas_z)][['twas_z']]),na.rm = TRUE)]
 
 
-#Summarize table at variant level - gene -main context level
+#Summarize table creating column at variant gene -main context level
 #here we create the confidence score per variant-gene-context short
 unique(res_adx[,.(context,context_short)])
 
@@ -1233,8 +1233,6 @@ if(file.exists('long_table_columns_selection.csv')){
 
 #IV) WIDE TABLE CREATION  ####
 res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
-
-#save confidence score
 
 res_adxub<-WideTable(res_adx,split.by=c('context_broad2','qtl_type'))
 
