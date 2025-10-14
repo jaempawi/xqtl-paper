@@ -30,6 +30,7 @@ distance_from_tes	Distance from TES				7	1	0	0	0
 twas_z_gene_max	Maximum TWAS zscore				6	1	0	0	0	1	#7482D6	#f5f0f0	#F8696B
 TWAS_signif_gene	TWAS significant				6	1	0	0	0				
 MR_signif_gene	MR significant				6	1	0	0	0				
+cTWAS_signif_gene	cTWAS significant				6	1	0	0	0				
 variant_inclusion_probability_xqtl	Maximum inclusion score	xQTLs variants prioritization			7	1	0	0	0				
 variant_rank_xqtl	Variant rank				7	1	0	0	0				
 method_xqtl	Method				7	1	0	0	0				

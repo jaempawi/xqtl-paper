@@ -1,4 +1,4 @@
-
+ 
 #Gene locus summary
 #need 5 Metadata:
 #- metadata_analysis.csv containing all exported tables paths
@@ -684,7 +684,11 @@ setnames(res_ctwas,'molecular_id','gene_ID')
 
 res_ctwasf<-res_ctwas[cs!=''&susie_pip>0.75]
 res_ctwasf<-res_ctwasf[,-c('group','type')]
+res_ctwasf[,cTWAS_signif:=TRUE]
+res_ctwasf[(cTWAS_signif)]
+
 fwrite(res_ctwasf,fp(out,'res_AD_cTWAS_pip075.csv.gz'))
+res_ctwasf<-fread(fp(out,'res_AD_cTWAS_pip075.csv.gz'))
 
 mtd[Method%in%c('cTWAS'),summary_file:=fp(out,'res_AD_cTWAS_pip075.csv.gz')]
 
@@ -1093,7 +1097,7 @@ res_adx<-rbind(res_adx,res_ctwadf[,Method:='cTWAS'],fill=T)
 res_adx[,TWAS_signif:=any(TWAS_signif),by=.(ADlocus,gene_ID,context,gwas_source)]
 res_adx[,MR_signif:=any(MR_signif),by=.(ADlocus,gene_ID,context,gwas_source)]
 
-res_adx[,cTWAS_signif:=any(Method=='cTWAS'),by=.(ADlocus,gene_ID,context)]
+res_adx[,cTWAS_signif:=any(cTWAS_signif),by=.(ADlocus,gene_ID,context)]
 
 
 table(unique(res_adx,by=c('locuscontext_id','ADlocus','gene_ID','context'))$Method)
@@ -1190,6 +1194,7 @@ res_adx[twas_z==-Inf,twas_z:=-max(abs(res_adx[!is.infinite(twas_z)&!is.na(twas_z
 
 fwrite(res_adx,fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
 res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
+table(res_adx$Method)
 
 #OPTIONAL
 #keep only columns of interest
@@ -1306,16 +1311,6 @@ res_adxub[,top_variants:=((max_variant_inclusion_probability>=0.1)&(max_variant_
 res_adxubf<-res_adxub[(top_variants)][!is.na(locus_index)]
 nrow(res_adxubf)#3073
 unique(res_adxubf$locus_index)
-#add supplemental cols
-res_adxubf[,gwas_significance:=ifelse(min_pval<5e-8,'genome wide',
-                                        ifelse(min_pval<1e-6,
-                                               'suggestive',
-                                               'ns'))]
-res_adxubf[,mlog10pval:=-log10(min_pval)]
-
-#variant inclusion top confidence level
-res_adxubf[,top_confidence:=str_extract(xQTL_effects,'C[0-9]')]
-
 
 #some stats
 unique(res_adxubf$gene_name)|>length()#1128
@@ -1326,6 +1321,26 @@ res_adxubf$top_confidence|>table()
 #with Trans:
 # C1   C2   C3   C4   C5   C6 
 # 47   23  197 1366 1443   11 
+
+unique(res_adxubf[order(locus_index,top_confidence)],
+       by='locus_index')$top_confidence|>table()
+
+unique(res_adxubf[gwas_significance=='ns'][order(locus_index,top_confidence)],
+       by='locus_index')$top_confidence|>table()
+
+
+unique(res_adxubf[gwas_significance!='ns'][order(locus_index,top_confidence)],
+       by='locus_index')$top_confidence|>table()
+unique(res_adxubf[gwas_significance=='genome wide'][order(locus_index,top_confidence)],
+       by='locus_index')$top_confidence|>table()
+
+res_loc<-unique(res_adxubf[!is.na(locus_index)][order(locus_index,top_confidence)],
+       by='locus_index')
+res_loc[,gwas_significance:=ifelse(gwas_significance=='ns','p<1e-5',ifelse(gwas_significance=='suggestive','p<1e-6','p<5e-8'))]
+ggplot(res_loc)+geom_bar(aes(x=top_confidence,fill=gwas_significance))+theme_bw()
+
+res_loc[gwas_significance=='p<5e-8']|>nrow()
+#new Loci
 
 #Main Excel Sheet creation ####
 #get the columns metadata ready

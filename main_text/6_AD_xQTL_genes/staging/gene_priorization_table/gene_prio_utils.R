@@ -3,6 +3,28 @@ fp<-function(...)file.path(...)
 ps<-function(...)paste0(...)
 library(data.table)
 library(stringr)
+library(ggplot2)
+library(tidyverse)
+
+get_gene_id <- function(gene_name){
+  gene_ref <- read.table('/data/resource/references//Homo_sapiens.GRCh38.103.chr.reformatted.collapse_only.gene.region_list', header = F)
+  gene_name = gene_name
+  gene_id = gene_ref %>% filter(V5 == gene_name) %>% pull(V4)
+  return(gene_id)
+}
+
+
+get_gene_info <- function(gene_id = NULL, gene_name = NULL){
+  if(is.null(gene_id)) gene_id <- get_gene_id(gene_name)
+  FunGen_gene <- fread("/data/interactive_analysis/rf2872/resource/Gene_Block.tsv")
+  gene_info <- FunGen_gene %>% filter(region_id == gene_id) %>% mutate(gene_name = gene_name)
+  target_LD_ids <- gene_info%>% pull(LD_matrix_id) %>% str_split(., ',', simplify = T) %>% unlist
+  target_TAD_ids <- gene_info%>% pull(TADB_id) %>% str_split(., ',', simplify = T) %>% unlist
+  target_sums_ids <- gene_info %>% pull(LD_sumstats_id) %>% str_split(., ',', simplify = T) %>% unlist
+  gene_region <- paste0(gene_info[['#chr']], ":", gene_info[['start']], "-", gene_info[['end']])
+  return(list(gene_info = gene_info, target_LD_ids = target_LD_ids, target_sums_ids = target_sums_ids, gene_region = gene_region, target_TAD_ids = target_TAD_ids))
+}
+
 
 #genomics coordinates manipulation ####
 start<-function(x,start_pos=2)sapply(x,function(x)as.numeric(strsplit(x,"\\.|-|:|_|,|\\[|\\]")[[1]][start_pos]))
@@ -177,9 +199,9 @@ WideTable<-function(res_adx,group.by='context_short',
   #C6: TWAS only
   message('summarizing per ',group.by,' the xQTL evidence for each variant')
   res_adx[,confidence_lvl:={
-    if(any(MR_signif,na.rm = T)&(any(Method%in%c('single_context_finemapping','fSuSiE_finemapping')&str_detect(credibleset,'cs95'),na.rm = T))){
+    if((any(MR_signif,na.rm = T)|any(cTWAS_signif,na.rm = T))&(any(Method%in%c('single_context_finemapping','fSuSiE_finemapping')&str_detect(credibleset,'cs95'),na.rm = T))){
       'C1'
-    }else if(any(MR_signif,na.rm = T)&any(Method=='AD_xQTL_colocalization',na.rm = T)){
+    }else if((any(MR_signif,na.rm = T)|any(cTWAS_signif,na.rm = T))&any(Method=='AD_xQTL_colocalization',na.rm = T)){
       'C2'
     }else if(any(TWAS_signif,na.rm = T)&(any(Method%in%c('single_context_finemapping','fSuSiE_finemapping')&str_detect(credibleset,'cs95'),na.rm = T)|any(Method=='AD_xQTL_colocalization',na.rm = T))){
       'C3'
@@ -221,6 +243,8 @@ WideTable<-function(res_adx,group.by='context_short',
 
   res_adx[,TWAS_signif_gene:=any(TWAS_signif,na.rm = T),by=c(group.by,'gene_ID')]
   res_adx[,MR_signif_gene:=any(MR_signif,na.rm = T),by=c(group.by,'gene_ID')]
+  res_adx[,cTWAS_signif_gene:=any(cTWAS_signif,na.rm = T),by=c(group.by,'gene_ID')]
+  
   
   res_adx[,twas_pval_gene_min:=twas_pval[which.min(twas_pval)][1],by=.(context_short,gene_ID)]
   res_adx[,twas_z_gene_max:=twas_z[which.min(twas_pval)][1],by=.(context_short,gene_ID)]
@@ -396,6 +420,17 @@ WideTable<-function(res_adx,group.by='context_short',
                                                                                                    -abs(twas_z_gene_max),
                                                                                                    tss,
                                                                                                    cV2F_rank)]
+  
+  #add supplemental cols
+  res_adxub[,gwas_significance:=ifelse(min_pval<5e-8,'genome wide',
+                                        ifelse(min_pval<1e-6,
+                                               'suggestive',
+                                               'ns'))]
+  res_adxub[,mlog10pval:=-log10(min_pval)]
+  
+  #variant inclusion top confidence level
+  res_adxub[,top_confidence:=str_extract(xQTL_effects,'C[0-9]')]
+  
   
   return(res_adxub)
 }
