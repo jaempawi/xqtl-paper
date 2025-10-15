@@ -60,18 +60,18 @@ alt<-function(x)sapply(x,function(x){
 UnifyLoci<-function(loci,variant_col='variant_id',
                     locus_col='locuscontext_id',group.by=NULL,
                     order.by='pos',order.by.ascending=TRUE,
-                          overlap_col=NULL,rm_overlap=TRUE){
+                    overlap_col=NULL,rm_overlap=TRUE){
   if(variant_col!='variant_id'){
     loci$variant_id<-loci[[variant_col]]
     
   }
-
+  
   if(locus_col!='locus_id'){
     loci$locus_id<-loci[[locus_col]]
     
   }
   
-
+  
   
   if(is.null(overlap_col)){
     loci[,overlapping_locus.var:=paste(unique(locus_id),collapse ='|'),by='variant_id']
@@ -90,13 +90,13 @@ UnifyLoci<-function(loci,variant_col='variant_id',
     setorderv(loci_u,cols = order.by,order = as.numeric(order.by.ascending))
     
   }
-    
-
+  
+  
   if(!is.null(group.by)){
     loci_u[,group:=apply(.SD,1,function(x)paste(x,collapse = '.')),.SDcols=group.by]
     
   }
-
+  
   loci_u[,uni.locus_id:={
     if(!is.null(group.by)){
       pref.loc=unique(group)
@@ -133,7 +133,7 @@ UnifyLoci<-function(loci,variant_col='variant_id',
     }
     paste(pref.loc,overlap_set_num,sep='_')
     
-    },by=group.by]
+  },by=group.by]
   
   loci<-merge(loci,loci_u[,.SD,.SDcols=c(locus_col,group.by,'uni.locus_id')],by=c(locus_col,group.by))
   if(rm_overlap){
@@ -147,17 +147,13 @@ UnifyLoci<-function(loci,variant_col='variant_id',
 
 
 
-
-
-
-#WideTable####
-#From AD locus overlapped long table of  variant_ID level Method/context/gene_ID summ stats, create a wide table at variant-gene level summarizing per 'group.by' link of each variants to xQTL
-
-WideTable<-function(res_adx,group.by='context_short',
-                    xqtl_methods=c('fSuSiE_finemapping','single_context_finemapping', 'multi_context_finemapping','AD_xQTL_colocalization','TWAS/MR'),
-                    split.by=c('context_broad2','qtl_type')){
-  
-  res_adx<-res_adx[!str_detect(context,'^AD')]
+#VariantsLevelSummary####
+#annotation AD locus overlapped table with confidence score and summarize 
+SummarizeTable<-function(res_adx,
+                         group.by='context_short',
+                         xqtl_methods=c('fSuSiE_finemapping','single_context_finemapping',
+                                        'multi_context_finemapping','AD_xQTL_colocalization','TWAS/MR','cTWAS')){
+  #res_adx<-res_adx[!str_detect(context,'^AD')]
   #xQTL level variant prioritization
   #MAX_VIP for xQTL like for GWAS 
   #i.e. max_vip, vip_rank, top_method, top_context pER GENE
@@ -179,7 +175,7 @@ WideTable<-function(res_adx,group.by='context_short',
   res_adx[Method%in%xqtl_methods&!str_detect(context,'^AD'),n.variant_xqtl:=n.variant.locus[which.max(ifelse(is.na(vcp),PIP,vcp))],by=c('variant_ID','gene_ID')]
   res_adx[Method%in%xqtl_methods&!str_detect(context,'^AD'),effect_xqtl:=ifelse(str_detect(Method,'fSuSiE'),top_effect,ifelse(str_detect(Method,'finemapping'),conditional_effect,coef)),by=c('variant_ID','gene_ID')]
   res_adx[Method%in%xqtl_methods&!str_detect(context,'^AD'),coverage_xqtl:=str_extract(credibleset,'cs[0-9]+')[which.max(ifelse(is.na(vcp),PIP,vcp))],by=c('variant_ID','gene_ID')]
-
+  
   #add transQTL infos
   res_adx[,have_trans_effect:=any(Method=='trans_finemapping'),by=.(variant_ID)]
   res_adx[order(-have_trans_effect,-PIP),n_trans_genes:=length(unique(gene_name[Method=='trans_finemapping'&gene_name!=''])),by=.(variant_ID)]
@@ -191,14 +187,14 @@ WideTable<-function(res_adx,group.by='context_short',
   
   #COntexts summary
   ##for each locus, add confidence level of each broad context
-  #C1: TWAS, MR, cs95 single context fine-mapping overlap
-  #C2: TWAS, MR, colocalization
+  #C1: cTWAS/MR, cs95 single context fine-mapping overlap
+  #C2: cTWAS/MR, colocalization
   #C3: TWAS and (cs95 fine-mapping overlap OR colocalization)
   #C4: cs95 single context fine-mapping overlap
   #C5: colocalization OR any fine-mapping overlap (multicontext, cs50, cs70..)
   #C6: TWAS only
   message('summarizing per ',group.by,' the xQTL evidence for each variant')
-  res_adx[,confidence_lvl:={
+  res_adx[!str_detect(context,'^AD'),confidence_lvl:={
     if((any(MR_signif,na.rm = T)|any(cTWAS_signif,na.rm = T))&(any(Method%in%c('single_context_finemapping','fSuSiE_finemapping')&str_detect(credibleset,'cs95'),na.rm = T))){
       'C1'
     }else if((any(MR_signif,na.rm = T)|any(cTWAS_signif,na.rm = T))&any(Method=='AD_xQTL_colocalization',na.rm = T)){
@@ -239,57 +235,67 @@ WideTable<-function(res_adx,group.by='context_short',
   
   
   #Add top twas zscore per gene
-
-
-  res_adx[,TWAS_signif_gene:=any(TWAS_signif,na.rm = T),by=c(group.by,'gene_ID')]
-  res_adx[,MR_signif_gene:=any(MR_signif,na.rm = T),by=c(group.by,'gene_ID')]
-  res_adx[,cTWAS_signif_gene:=any(cTWAS_signif,na.rm = T),by=c(group.by,'gene_ID')]
   
   
-  res_adx[,twas_pval_gene_min:=twas_pval[which.min(twas_pval)][1],by=.(context_short,gene_ID)]
-  res_adx[,twas_z_gene_max:=twas_z[which.min(twas_pval)][1],by=.(context_short,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),TWAS_signif_gene:=any(TWAS_signif,na.rm = T),by=c(group.by,'gene_ID')]
+  res_adx[!str_detect(context,'^AD'),MR_signif_gene:=any(MR_signif,na.rm = T),by=c(group.by,'gene_ID')]
+  res_adx[!str_detect(context,'^AD'),cTWAS_signif_gene:=any(cTWAS_signif,na.rm = T),by=c(group.by,'gene_ID')]
+  
+  
+  res_adx[!str_detect(context,'^AD'),twas_pval_gene_min:=twas_pval[which.min(twas_pval)][1],by=.(context_short,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),twas_z_gene_max:=twas_z[which.min(twas_pval)][1],by=.(context_short,gene_ID)]
   
   #mv genes
-  res_adx[,mv_genes:=paste(unique(gene_name[Method=='multi_gene_finemapping'&!gene_name=='']),collapse = '|'),by=.(variant_ID,ADlocus)]
-  res_adx[,n.mv_genes:=length(unique(gene_name[Method=='multi_gene_finemapping'&!gene_name==''])),by=.(variant_ID,ADlocus)]
+  res_adx[!str_detect(context,'^AD'),mv_genes:=paste(unique(gene_name[Method=='multi_gene_finemapping'&!gene_name=='']),collapse = '|'),by=.(variant_ID,ADlocus)]
+  res_adx[!str_detect(context,'^AD'),n.mv_genes:=length(unique(gene_name[Method=='multi_gene_finemapping'&!gene_name==''])),by=.(variant_ID,ADlocus)]
   
   #QR 
   res_adx[order(p_bonferroni_adj),qr_contexts:=paste(unique(context[Method=='QR'&context!='']),collapse = '|'),by=.(variant_ID,gene_ID)]
-  res_adx[,top_qr_context:=context[which.min(p_bonferroni_adj)][1],by=.(variant_ID,gene_ID)]
-  res_adx[,top_qr_classification:=classification[which.min(p_bonferroni_adj)][1],by=.(variant_ID,gene_ID)]
-  res_adx[,top_qr_p_bonferroni_adj:=min(p_bonferroni_adj,na.rm = T),by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_qr_context:=context[which.min(p_bonferroni_adj)][1],by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_qr_classification:=classification[which.min(p_bonferroni_adj)][1],by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_qr_p_bonferroni_adj:=min(p_bonferroni_adj,na.rm = T),by=.(variant_ID,gene_ID)]
   
   
   #interactions
   res_adx[order(pvalue_APOE_interaction),apoe4_interactions:=paste(unique(context[Method=='APOE interaction'&context!='']),collapse = '|'),by=.(variant_ID,gene_ID)]
-  res_adx[,top_apoe4_context:=context[which.min(pvalue_APOE_interaction)][1],by=.(variant_ID,gene_ID)]
-  res_adx[,top_apoe4_p_value:=min(pvalue_APOE_interaction,na.rm = T),by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_apoe4_context:=context[which.min(pvalue_APOE_interaction)][1],by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_apoe4_p_value:=min(pvalue_APOE_interaction,na.rm = T),by=.(variant_ID,gene_ID)]
   
   res_adx[order(pvalue_msex_interaction),msex_interactions:=paste(unique(context[Method=='msex interaction'&context!='']),collapse = '|'),by=.(variant_ID,gene_ID)]
-  res_adx[,top_msex_context:=context[which.min(pvalue_msex_interaction)][1],by=.(variant_ID,gene_ID)]
-  res_adx[,top_msex_p_value:=min(pvalue_msex_interaction,na.rm = T),by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_msex_context:=context[which.min(pvalue_msex_interaction)][1],by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_msex_p_value:=min(pvalue_msex_interaction,na.rm = T),by=.(variant_ID,gene_ID)]
   
- 
+  return(res_adx)
+  
+  
+}
+
+#WideTable####
+#From AD locus overlapped long table of  variant_ID level Method/context/gene_ID summ stats, create a wide table at variant-gene level adding columns information per 'split.by' level 
+
+WideTable<-function(res_adx,split.by=c('context_broad2','qtl_type')){
+  
+  
   
   #   Add per broad context infos
   # separate by main context (cell type or tissue)
   message('generating columns per ',paste(split.by,collapse = ' and '))
   
   res_adxl<-split(res_adx[!context_broad2%in%c('','GWAS')&!is.na(context_broad2)],by = split.by)
-
-    #for each add inclusion prob, Fp, coloc, multicontext,datasets, caQTL, QR, Interaction
+  
+  #for each add inclusion prob, Fp, coloc, multicontext,datasets, caQTL, QR, Interaction
   
   res_adxlu<-lapply(res_adxl, function(res){
     message(unique(res[,paste(get(split.by[1]),get(split.by[2]))]))
     #add for top inclusion score, context, fp pip, fp pip effect,  vcp, coloc effect, multicontext pip, TWAS Z, MR T/F, QR Pval, APOE4 Pval, Sex Pval, 
     res[,incl_prob:=ifelse(is.na(vcp),PIP,vcp)]
     res[order(-incl_prob),max_dataset:=context[1],by=c('variant_ID','gene_ID')]
-
+    
     res[,max_inclusion_probability:=max(incl_prob,na.rm = T),by=c('variant_ID','gene_ID')]
     res[is.infinite(max_inclusion_probability),max_inclusion_probability:=NA]
     
     
-
+    
     res[,max_finemap_pip:=PIP[Method%in%c('single_context_finemapping')][context==max_dataset[1]][1],by=c('variant_ID','gene_ID')]
     res[,max_finemap_effect:=conditional_effect[Method%in%c('single_context_finemapping')][context==max_dataset[1]][1],by=c('variant_ID','gene_ID')]
     
@@ -303,7 +309,7 @@ WideTable<-function(res_adx,group.by='context_short',
     
     
     res[,max_TWAS_Z:=twas_z[which.max(abs(twas_z[context==max_dataset[1]]))],by=c('gene_ID')]
-
+    
     res[,max_MR:=any(MR_signif[context==max_dataset[1]]),by=c('gene_ID')]
     
     res[,max_QR_padj:=p_bonferroni_adj[Method=='QR'&context==max_dataset[1]]|>min(na.rm = T),by=c('variant_ID','gene_ID')]
@@ -316,7 +322,7 @@ WideTable<-function(res_adx,group.by='context_short',
     res[is.infinite(max_APOE4_interaction_pval),max_APOE4_interaction_pval:=NA]
     res[is.infinite(max_msex_interaction_pval),max_msex_interaction_pval:=NA]
     
-
+    
     #add QTL type specific info
     if('sn_sQTL'%in%unique(res$Method)){
       #sn sQTL spe info beta, pval, splice site
@@ -341,8 +347,8 @@ WideTable<-function(res_adx,group.by='context_short',
       
       
     }
-      
-      
+    
+    
     if(any(str_detect(unique(res$context_short),'bulk (u-|s-)?sQTL'))){
       res[,max_njunctions:=length(unique(event_ID[context==max_dataset[1]][1])),by=c('variant_ID','gene_ID')]
       res[order(-ifelse(is.na(vcp),PIP,vcp),-ifelse(is.na(coef),conditional_effect,coef)),
@@ -403,12 +409,12 @@ WideTable<-function(res_adx,group.by='context_short',
   
   #Get the variant level summary table####
   #ORDER: Order locus per gene and variant importance, keeping the top context for each variant
-
-  res_adxu<-unique(res_adx[order(is.na(xQTL_effects))][order(locus_index,
-                                                             confidence_lvl,
-                                                             -abs(twas_z_gene_max),
-                                                             tss,
-                                                             cV2F_rank)],
+  
+  res_adxu<-unique(res_adx[order(is.na(xQTL_effects))][Method!='trans_finemapping'][order(locus_index,
+                                                                                          confidence_lvl,
+                                                                                          -abs(twas_z_gene_max),
+                                                                                          tss,
+                                                                                          cV2F_rank)],
                    by=c('locus_index','gene_ID','variant_ID'))
   #remove row if variant without gene while variant  present with a gene
   res_adxu<-res_adxu[!(duplicated(variant_ID)&(gene_ID==''|is.na(gene_ID)))]
@@ -423,9 +429,9 @@ WideTable<-function(res_adx,group.by='context_short',
   
   #add supplemental cols
   res_adxub[,gwas_significance:=ifelse(min_pval<5e-8,'genome wide',
-                                        ifelse(min_pval<1e-6,
-                                               'suggestive',
-                                               'ns'))]
+                                       ifelse(min_pval<1e-6,
+                                              'suggestive',
+                                              'ns'))]
   res_adxub[,mlog10pval:=-log10(min_pval)]
   
   #variant inclusion top confidence level
