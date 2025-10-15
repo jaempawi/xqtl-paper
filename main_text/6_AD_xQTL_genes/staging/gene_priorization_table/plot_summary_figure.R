@@ -1,10 +1,12 @@
 setwd('/adpelle1/xqtl-paper-final/')
 out<-'main_text/6_AD_xQTL_genes/staging/gene_priorization_table/'
-source('../alexandre-utils/r_utils.R')
+source('main_text/6_AD_xQTL_genes/staging/gene_priorization_table/gene_prio_utils.R')
 
+#install.packages('ggtext')
+ library(ggtext)
 
 #update table figure
-res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'),tmpdir = '/adpelle1/tmp/')
+res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
 
 #add the confidence level
 
@@ -169,9 +171,6 @@ ggsave(fp(out,'genome_wide_signif_ADloci_xQTL_summary_contextcolors_per_gene_con
 #subset gene to top 2 tiers: with C1/2/3/4 confidence
 unique(res_adxlocfge[order(confidence_lvl)],by='gene_name')$confidence_lvl|>table()
 
-#add also top confidence score per group and n study
-res_adxlocfge[,n_study_group:=length(unique(context[evidence_level>0])),by=.(gene_name,context_group)]
-res_adxlocfge[,confidence_lvl_group:=sort(confidence_lvl)[1],by=.(gene_name,context_group)]
 
 res_adxlocfge_cont_top<-unique(res_adxlocfge[evidence_level!=0][n.study.gene>0],by=c('gene_name','locus_index','evidence_type','context_group'))[gene_name%in%gene_name[top_confidence%in%c('C1','C2','C3','C4')]]
 
@@ -188,7 +187,15 @@ p<-ggplot(res_adxlocfge_cont_top)+
 p
 ggsave(fp(out,'genome_wide_signif_ADloci_xQTL_summary_contextcolors_per_gene_context_group_C1toC4.pdf'),height = 10,width = 8)
 
-# summarize using confidence score instead and nstudy
+
+
+# summarize using confidence score instead and nstudy####
+res_adxlocfge[,n_study_group:=length(unique(context[evidence_level>0])),by=.(gene_name,context_group)]
+res_adxlocfge[,confidence_lvl_group:=sort(confidence_lvl)[1],by=.(gene_name,context_group)]
+table(res_adxlocfge$confidence_lvl_group)
+res_adxlocfge_cont_top<-unique(res_adxlocfge,by=c('gene_name','context_group'))[gene_name%in%gene_name[top_confidence%in%c('C1','C2','C3','C4')]]
+
+
 conf_colors<-fread(fp(out,'pattern_coloring.tsv'))[pattern%in%paste0('C',1:6)]
 p<-ggplot(res_adxlocfge_cont_top)+
   geom_point(aes(y=gene_name,x=context_group,
@@ -199,55 +206,51 @@ p<-ggplot(res_adxlocfge_cont_top)+
   theme(strip.text.x = element_text(angle = 90))+
   labs(size='# datasets',col='Confidence level')+
   scale_color_manual(values = conf_colors$fill_color)
-ggsave(fp(out,'test.png'),plot = p,height = 10,width = 5)
+p
 
 
 #sep causal vs correlated
-
-#install.packages('ggtext')
 #C6 is dropped, C1/C2/C3 are called causal, and C4/C5 are called “correlative” or “correlated”
 library(ggtext)
 res_adxlocfge_cont_topf<-res_adxlocfge_cont_top[confidence_lvl_group!='C6']
 res_adxlocfge_cont_topf[,confidence_cat_group:=ifelse(confidence_lvl_group%in%c('C1',"C2",'C3'),'putative causal','correlated')]
 
 #add if frpm, APOE region, or from AD by proxy only
+
+res_adxlocfge_cont_topf[is.na(APOE_region),APOE_region:=FALSE]
 res_adxlocfge_cont_topf[,gene_name_2:=as.character(gene_name)]
-res_adxlocfge_cont_topf[only_by_proxi|APOE_region,gene_name_2:=ifelse(any(APOE_region),
-                                             paste(as.character(gene_name)[1],'*'),
-                                             paste(as.character(gene_name)[1],'**')),
+
+res_adxlocfge_cont_topf[,gene_name_2:=ifelse(any(APOE_region),
+                                             paste0("<i>",gene_name_2[1],'</i>'),
+                                                    gene_name_2),
                         by='gene_name']
+
+res_adxlocfge_cont_topf[,gene_name_2:=ifelse(!all(only_by_proxi),paste0("<b>",gene_name_2[1],'</b>'),
+                                                    gene_name_2),
+                        by='gene_name']
+
+res_adxlocfge_cont_topf$gene_name_2|>unique()
+res_adxlocfge_cont_topf[is.na(gene_name_2)]
 res_adxlocfge_cont_topf[,gene_name_2:=factor(gene_name_2,levels = unique(gene_name_2[order(gene_name)]))]
+
+
 
 
 p<-ggplot(res_adxlocfge_cont_topf)+
   geom_point(aes(y=gene_name_2,x=context_group,
                  size=n_study_group,
                  col=confidence_cat_group))+
-  facet_grid(chr~'',scales = 'free',space = 'free')+scale_size(range = c(1.5,5))+theme_minimal()+
+  facet_grid(chr~'',scales = 'free',space = 'free')+
+  scale_size(range = c(1.25,5.5),breaks = c(2,7,12))+theme_minimal()+
   scale_x_discrete(guide = guide_axis(angle = 90))+
   theme(strip.text.x = element_text(angle = 90))+
   labs(size='# datasets',col='Confidence level')+
-  scale_color_manual(values = c('cyan3','red'))
+  scale_color_manual(values = c('cyan3','red'))+  theme(
+    axis.text.y = element_markdown()
+  )
 p
 
-ggsave(fp(out,'test.png'),plot = p,height = 10,width = 5)
 
-
-#others tests:
-#sep in 3categories
-res_adxlocfge_cont_topf[,confidence_cat_group:=ifelse(confidence_lvl_group%in%c('C1',"C2"),'Causal',ifelse(confidence_lvl_group=='C3','Putative Causal','Correlated'))]
-res_adxlocfge_cont_topf[,confidence_cat_group:=factor(confidence_cat_group,levels = c('Causal','Putative Causal','Correlated'))]
-
-p<-ggplot(res_adxlocfge_cont_topf)+
-  geom_point(aes(y=gene_name,x=context_group,
-                 size=n_study_group,
-                 col=confidence_cat_group))+
-  facet_grid(chr~'',scales = 'free',space = 'free')+scale_size(range = c(1.5,5))+theme_minimal()+
-  scale_x_discrete(guide = guide_axis(angle = 90))+
-  theme(strip.text.x = element_text(angle = 90))+
-  labs(size='# datasets',col='Confidence level')+
-  scale_color_manual(values = c('red','purple','cyan3'))
-p
 
 
 
