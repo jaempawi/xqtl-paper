@@ -153,7 +153,7 @@ SummarizeTable<-function(res_adx,
                          group.by='context_short',
                          xqtl_methods=c('fSuSiE_finemapping','single_context_finemapping',
                                         'multi_context_finemapping','AD_xQTL_colocalization','TWAS/MR','cTWAS')){
-  res_adx<-res_adx[!str_detect(context,'^AD')]
+  #res_adx<-res_adx[!str_detect(context,'^AD')]
   #xQTL level variant prioritization
   #MAX_VIP for xQTL like for GWAS 
   #i.e. max_vip, vip_rank, top_method, top_context pER GENE
@@ -194,7 +194,7 @@ SummarizeTable<-function(res_adx,
   #C5: colocalization OR any fine-mapping overlap (multicontext, cs50, cs70..)
   #C6: TWAS only
   message('summarizing per ',group.by,' the xQTL evidence for each variant')
-  res_adx[,confidence_lvl:={
+  res_adx[!str_detect(context,'^AD'),confidence_lvl:={
     if((any(MR_signif,na.rm = T)|any(cTWAS_signif,na.rm = T))&(any(Method%in%c('single_context_finemapping','fSuSiE_finemapping')&str_detect(credibleset,'cs95'),na.rm = T))){
       'C1'
     }else if((any(MR_signif,na.rm = T)|any(cTWAS_signif,na.rm = T))&any(Method=='AD_xQTL_colocalization',na.rm = T)){
@@ -237,33 +237,33 @@ SummarizeTable<-function(res_adx,
   #Add top twas zscore per gene
   
   
-  res_adx[,TWAS_signif_gene:=any(TWAS_signif,na.rm = T),by=c(group.by,'gene_ID')]
-  res_adx[,MR_signif_gene:=any(MR_signif,na.rm = T),by=c(group.by,'gene_ID')]
-  res_adx[,cTWAS_signif_gene:=any(cTWAS_signif,na.rm = T),by=c(group.by,'gene_ID')]
+  res_adx[!str_detect(context,'^AD'),TWAS_signif_gene:=any(TWAS_signif,na.rm = T),by=c(group.by,'gene_ID')]
+  res_adx[!str_detect(context,'^AD'),MR_signif_gene:=any(MR_signif,na.rm = T),by=c(group.by,'gene_ID')]
+  res_adx[!str_detect(context,'^AD'),cTWAS_signif_gene:=any(cTWAS_signif,na.rm = T),by=c(group.by,'gene_ID')]
   
   
-  res_adx[,twas_pval_gene_min:=twas_pval[which.min(twas_pval)][1],by=.(context_short,gene_ID)]
-  res_adx[,twas_z_gene_max:=twas_z[which.min(twas_pval)][1],by=.(context_short,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),twas_pval_gene_min:=twas_pval[which.min(twas_pval)][1],by=.(context_short,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),twas_z_gene_max:=twas_z[which.min(twas_pval)][1],by=.(context_short,gene_ID)]
   
   #mv genes
-  res_adx[,mv_genes:=paste(unique(gene_name[Method=='multi_gene_finemapping'&!gene_name=='']),collapse = '|'),by=.(variant_ID,ADlocus)]
-  res_adx[,n.mv_genes:=length(unique(gene_name[Method=='multi_gene_finemapping'&!gene_name==''])),by=.(variant_ID,ADlocus)]
+  res_adx[!str_detect(context,'^AD'),mv_genes:=paste(unique(gene_name[Method=='multi_gene_finemapping'&!gene_name=='']),collapse = '|'),by=.(variant_ID,ADlocus)]
+  res_adx[!str_detect(context,'^AD'),n.mv_genes:=length(unique(gene_name[Method=='multi_gene_finemapping'&!gene_name==''])),by=.(variant_ID,ADlocus)]
   
   #QR 
   res_adx[order(p_bonferroni_adj),qr_contexts:=paste(unique(context[Method=='QR'&context!='']),collapse = '|'),by=.(variant_ID,gene_ID)]
-  res_adx[,top_qr_context:=context[which.min(p_bonferroni_adj)][1],by=.(variant_ID,gene_ID)]
-  res_adx[,top_qr_classification:=classification[which.min(p_bonferroni_adj)][1],by=.(variant_ID,gene_ID)]
-  res_adx[,top_qr_p_bonferroni_adj:=min(p_bonferroni_adj,na.rm = T),by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_qr_context:=context[which.min(p_bonferroni_adj)][1],by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_qr_classification:=classification[which.min(p_bonferroni_adj)][1],by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_qr_p_bonferroni_adj:=min(p_bonferroni_adj,na.rm = T),by=.(variant_ID,gene_ID)]
   
   
   #interactions
   res_adx[order(pvalue_APOE_interaction),apoe4_interactions:=paste(unique(context[Method=='APOE interaction'&context!='']),collapse = '|'),by=.(variant_ID,gene_ID)]
-  res_adx[,top_apoe4_context:=context[which.min(pvalue_APOE_interaction)][1],by=.(variant_ID,gene_ID)]
-  res_adx[,top_apoe4_p_value:=min(pvalue_APOE_interaction,na.rm = T),by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_apoe4_context:=context[which.min(pvalue_APOE_interaction)][1],by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_apoe4_p_value:=min(pvalue_APOE_interaction,na.rm = T),by=.(variant_ID,gene_ID)]
   
   res_adx[order(pvalue_msex_interaction),msex_interactions:=paste(unique(context[Method=='msex interaction'&context!='']),collapse = '|'),by=.(variant_ID,gene_ID)]
-  res_adx[,top_msex_context:=context[which.min(pvalue_msex_interaction)][1],by=.(variant_ID,gene_ID)]
-  res_adx[,top_msex_p_value:=min(pvalue_msex_interaction,na.rm = T),by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_msex_context:=context[which.min(pvalue_msex_interaction)][1],by=.(variant_ID,gene_ID)]
+  res_adx[!str_detect(context,'^AD'),top_msex_p_value:=min(pvalue_msex_interaction,na.rm = T),by=.(variant_ID,gene_ID)]
   
   return(res_adx)
   

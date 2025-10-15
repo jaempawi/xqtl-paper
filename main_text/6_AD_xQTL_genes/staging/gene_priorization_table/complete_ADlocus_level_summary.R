@@ -969,7 +969,7 @@ mtd[file.exists(summary_file)&(variant_level_method),{
 
 fwrite(mtd,'metadata_analysis.csv')
 mtd<-fread('metadata_analysis.csv')
-res_adfv<-fread(fp(out,'AD_loci_unified_cs95orColocs_Pval1e5_variant_level.csv.gz'))
+res_adfv<-fread(fp(out,'AD_loci_unified_cs95orColocs_Pval1e5_variant_level.csv.gz'),tmpdir = '/adpelle1/tmp/')
 
 
 #get the long AD overlap table
@@ -989,7 +989,7 @@ res_adx<-rbindlist(lapply(unique(mtd[file.exists(summary_file_ad)&(variant_level
     summary_file_ad=mtd[Method==m]$summary_file_ad[1]
     
   }
-  res<-fread(summary_file_ad)[,Method:=m]
+  res<-fread(summary_file_ad,tmpdir = '/adpelle1/tmp/')[,Method:=m]
   message('found associated with ',length(unique(res$ADlocus)),' AD locus')
   return(res)
 }),fill = T)
@@ -997,6 +997,7 @@ res_adx
 res_adx[!str_detect(gene_ID,'^ENSG')]$context|>table() #OK
 
 res_adx[context=='']$Method|>table() #Coloc and Meta but normal
+res_adx[context=='']$context|>table() #Coloc and Meta but normal
 
 #populate all locuscontext_id lvl with the AD locus overlapping it
 res_adx[ADlocus=='',ADlocus:=NA]
@@ -1017,6 +1018,13 @@ dupcols<-setdiff(intersect(colnames(res_adfv),colnames(res_adx)),'variant_ID')
 res_adx<-merge(res_adx[,.SD,.SDcols = !dupcols],res_adfv,
                by=c('variant_ID'),all = T)
 res_adx[locus_index==1]
+
+res_adx[,only_by_proxi:=!any(context%in%c('AD_Bellenguez_EADB_2022','AD_Bellenguez_EADI_2022',
+                                          'AD_Wightman_ExcludingUKBand23andME_2021',
+                                          'AD_Kunkle_Stage1_2019')),by='locus_index']
+res_adx[,APOE_region:=chr==19&pos>43905790 &pos<45905791]
+unique(res_adx[(APOE_region)]$locus_index)
+#trans[gene_name=="APOE"][,.(start-1e6,end+1e6)]
 
 # #add gwaszscore for gwas method
 # res_adx<-merge(res_adx,unique(res_ad[,.(variant_ID,context=gwas_source,gwas_zscore)]),all.x = T,by=c('variant_ID','context'))
@@ -1041,7 +1049,7 @@ if(!file.exists(summary_file_ad)|update_twasad){
 }
 
 
-res_twadf<-fread(summary_file_ad)
+res_twadf<-fread(summary_file_ad,tmpdir = '/adpelle1/tmp/')
 res_twadf[(MR_signif)]
 res_twadf[is.na(MR_signif),MR_signif:=FALSE]
 
@@ -1089,7 +1097,7 @@ if(!file.exists(summary_file_ad)|update_ctwasad){
 
 
 #bind it
-res_ctwadf<-fread(summary_file_ad)
+res_ctwadf<-fread(summary_file_ad,tmpdir = '/adpelle1/tmp/')
 
 res_adx<-rbind(res_adx,res_ctwadf[,Method:='cTWAS'],fill=T)
 
@@ -1097,7 +1105,7 @@ res_adx<-rbind(res_adx,res_ctwadf[,Method:='cTWAS'],fill=T)
 res_adx[,TWAS_signif:=any(TWAS_signif),by=.(ADlocus,gene_ID,context,gwas_source)]
 res_adx[,MR_signif:=any(MR_signif),by=.(ADlocus,gene_ID,context,gwas_source)]
 
-res_adx[,cTWAS_signif:=any(cTWAS_signif),by=.(ADlocus,gene_ID,context)]
+res_adx[,cTWAS_signif:=any(Method=='cTWAS'),by=.(ADlocus,gene_ID,context)]
 
 
 table(unique(res_adx,by=c('locuscontext_id','ADlocus','gene_ID','context'))$Method)
@@ -1144,7 +1152,7 @@ if(update_geneinfo){
   trans<-unique(trans,by='gene_ID')
   fwrite(trans,fp(out,'genes_infos.csv.gz'))
 }else{
-  trans<-fread(fp(out,'genes_infos.csv.gz'))
+  trans<-fread(fp(out,'genes_infos.csv.gz'),tmpdir = '/adpelle1/tmp/')
 }
 
 res_adx<-merge(res_adx[,-c('tss','tes','gene_name')],trans[,-c('start','end','#chr')],all.x = T,by='gene_ID')
@@ -1175,6 +1183,7 @@ res_adx[,gene_ID:=gene_ID[!is.na(gene_ID)][1],by='gene_name']
 
 res_adx[locus_index==1]
 table(res_adx$context_broad)
+table(res_adx$context_short)
 
 
 #add broader context and qtl type
@@ -1200,8 +1209,9 @@ unique(res_adx[,.(context,context_short)])
 res_adx<-SummarizeTable(res_adx,group.by = 'context_short')
 colnames(res_adx)
 
+unique(res_adx[,.(context,context_short)])
 
-fwrite(res_adx,fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
+fwrite(res_adxa,fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
 res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
 table(res_adx$Method)
 

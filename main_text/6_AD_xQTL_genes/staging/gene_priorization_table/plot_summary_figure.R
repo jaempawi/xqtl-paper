@@ -4,7 +4,7 @@ source('../alexandre-utils/r_utils.R')
 
 
 #update table figure
-res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
+res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'),tmpdir = '/adpelle1/tmp/')
 
 #add the confidence level
 
@@ -16,6 +16,8 @@ res_adx[,top_confidence:=str_extract(xQTL_effects,'C[0-9]')]
 #for fp: high if cs95, coloc : high if npc > 0.95, TWAS: MR
 table(res_adx$Method)
 table(res_adx$context_short)
+table(res_adx$context)
+
 #group contexts better: 
 
 res_adx[Method%in%'TWAS/MR',evidence_type:='twas']
@@ -31,13 +33,14 @@ res_adx[,locus_gene:=paste(locus_index,ifelse(gene_name=='','?',gene_name),sep='
 res_adx[order(locus_gene,cV2F_rank),locus_gene_variant:=paste(locus_gene,variant_ID[1],sep='_'),by='locus_gene']
 
 
+
 #Genome wide signif hits
 res_adx[,genomewide_sig_loc:=any(min_pval<5e-8),by='locus_gene']
 
 
 res_adx[context_short=='Ast caQTL']
 #get at locus level
-res_adxloc<-unique(res_adx[!context_short%in%c('B','J','K','W')][!is.na(evidence_type)][order(locus_gene,cV2F_rank)],by=c('context','locus_gene','evidence_type'))
+res_adxloc<-unique(res_adx[!context_short%in%c('B','J','K','W')][!is.na(evidence_type)][order(locus_gene,confidence_lvl,cV2F_rank)],by=c('context','locus_gene','evidence_type'))
 
 #count numnber of dataset per broad context
 res_adxloc[,n.study:=length(unique(context[evidence_level>0])),
@@ -47,8 +50,8 @@ res_adxloc[,n.study:=length(unique(context[evidence_level>0])),
 #Genome wide signif hits
 
 res_adxlocf<-res_adxloc[(genomewide_sig_loc)][evidence_level>0]
-unique(res_adxlocf$locus_gene_variant)#622
-unique(res_adxlocf$locus_index)|>length() #94
+unique(res_adxlocf$locus_gene_variant)#241
+unique(res_adxlocf$locus_index)|>length() #79
 unique(res_adxlocf$Method)
 
 #take top gene per locus
@@ -196,15 +199,28 @@ p<-ggplot(res_adxlocfge_cont_top)+
   theme(strip.text.x = element_text(angle = 90))+
   labs(size='# datasets',col='Confidence level')+
   scale_color_manual(values = conf_colors$fill_color)
-p
+ggsave(fp(out,'test.png'),plot = p,height = 10,width = 5)
+
 
 #sep causal vs correlated
+
+#install.packages('ggtext')
 #C6 is dropped, C1/C2/C3 are called causal, and C4/C5 are called “correlative” or “correlated”
+library(ggtext)
 res_adxlocfge_cont_topf<-res_adxlocfge_cont_top[confidence_lvl_group!='C6']
 res_adxlocfge_cont_topf[,confidence_cat_group:=ifelse(confidence_lvl_group%in%c('C1',"C2",'C3'),'putative causal','correlated')]
 
+#add if frpm, APOE region, or from AD by proxy only
+res_adxlocfge_cont_topf[,gene_name_2:=as.character(gene_name)]
+res_adxlocfge_cont_topf[only_by_proxi|APOE_region,gene_name_2:=ifelse(any(APOE_region),
+                                             paste(as.character(gene_name)[1],'*'),
+                                             paste(as.character(gene_name)[1],'**')),
+                        by='gene_name']
+res_adxlocfge_cont_topf[,gene_name_2:=factor(gene_name_2,levels = unique(gene_name_2[order(gene_name)]))]
+
+
 p<-ggplot(res_adxlocfge_cont_topf)+
-  geom_point(aes(y=gene_name,x=context_group,
+  geom_point(aes(y=gene_name_2,x=context_group,
                  size=n_study_group,
                  col=confidence_cat_group))+
   facet_grid(chr~'',scales = 'free',space = 'free')+scale_size(range = c(1.5,5))+theme_minimal()+
@@ -214,6 +230,11 @@ p<-ggplot(res_adxlocfge_cont_topf)+
   scale_color_manual(values = c('cyan3','red'))
 p
 
+ggsave(fp(out,'test.png'),plot = p,height = 10,width = 5)
+
+
+#others tests:
+#sep in 3categories
 res_adxlocfge_cont_topf[,confidence_cat_group:=ifelse(confidence_lvl_group%in%c('C1',"C2"),'Causal',ifelse(confidence_lvl_group=='C3','Putative Causal','Correlated'))]
 res_adxlocfge_cont_topf[,confidence_cat_group:=factor(confidence_cat_group,levels = c('Causal','Putative Causal','Correlated'))]
 
@@ -230,18 +251,3 @@ p
 
 
 
-p<-ggplot(res_adxlocfge_cont_topf)+
-  geom_point(aes(y=gene_name,x=context_group,
-                 size=n_study_group,
-                 col=confidence_lvl_group))+
-  facet_grid(chr~'',scales = 'free',space = 'free')+scale_size(range = c(1.5,5))+theme_minimal()+
-  # Add stars for selected confidence_cat_group
-  geom_text(
-    data = subset(res_adxlocfge_cont_topf, confidence_cat_group == "causal"),
-    aes(x = context_group, y = gene_name, label = "*"),
-    color = "white", size = 2)+
-  scale_x_discrete(guide = guide_axis(angle = 90))+
-  theme(strip.text.x = element_text(angle = 90))+
-  labs(size='# datasets',col='Confidence level')+
-  scale_color_manual(values = conf_colors$fill_color[-6])
-p
