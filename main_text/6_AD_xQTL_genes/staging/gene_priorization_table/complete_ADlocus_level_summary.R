@@ -10,13 +10,12 @@
 #- long_table_columns_selection.csv to generate a long table with selected columns from the table res_allanalysis_ADloci_overlap.csv.gz generated in step III 
 #(in this table each row is a variant-ADlocus-Method-context-gene_name information, and so facilitate querying informations ) 
 
-setwd('/adpelle1/xqtl-paper-final/main_text/6_AD_xQTL_genes/staging/gene_priorization_table/')
 
 install.packages(c('openxlsx'))
 
-source('gene_prio_utils.R')
+source('main_text/6_AD_xQTL_genes/staging/gene_priorization_table/gene_prio_utils.R')
 
-out<-'.'
+out<-'main_text/6_AD_xQTL_genes/staging/gene_priorization_table/'
 dir.create(out)
 
 
@@ -1288,9 +1287,9 @@ res_loc[gwas_significance=='p<5e-8']|>nrow()
 #Main Excel Sheet creation ####
 #get the columns metadata ready
 
-cols<-fread('columns_metadata.tsv')[(keep==1)]
-colsmtd<-fread('excel_metadata.tsv')
-colorsmtd<-fread('pattern_coloring.tsv')
+cols<-fread(fp(out,'columns_metadata.tsv'))[(keep==1)]
+colsmtd<-fread(fp(out,'excel_metadata.tsv'))
+colorsmtd<-fread(fp(out,'pattern_coloring.tsv'))
 
 cols<-PrepColsMtd(cols,colsmtd,res_adxubf)
 unique(cols[,.(parent_column,grandparent_column)])|>tail(100)
@@ -1337,10 +1336,7 @@ for(cont in colsmtd[wildcard=='context_broad2']$r_name){
 }
 
 
-saveWorkbook(wb, '~/adpelle1/xqtl-resources/data/genes/unified_AD_loci_xQTL_summary.xlsx', overwrite = TRUE)
+saveWorkbook(wb, '~/projects-tcwlab/xqtl-resources/data/genes/unified_AD_loci_xQTL_summary.xlsx', overwrite = TRUE)
 
 
-
-#metadata compression
-system('tar -cvf metadata.tar pattern_coloring.tsv metadata_analysis.csv long_table_columns_selection.csv excel_metadata.tsv contexts_metadata.csv columns_metadata.tsv')
 
