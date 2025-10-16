@@ -162,4 +162,24 @@ p
 
 ggsave(fp(out,'ADloci_xQTL_summary_genome_wide_signif_top_gene_per_locus.pdf'),height = 9,width = 6)
 
+#sep in 3categories
+res_adxlocfge_cont_topf[,confidence_cat_group2:=ifelse(confidence_lvl_group%in%c('C1',"C2"),'Putative causal (CL1, CL2)',ifelse(confidence_lvl_group=='C3','Putative causal (CL3)','Associated'))]
+res_adxlocfge_cont_topf[,confidence_cat_group2:=factor(confidence_cat_group2,levels = c('Putative causal (CL1, CL2)','Putative causal (CL3)','Associated'))]
+
+p<-ggplot(res_adxlocfge_cont_topf)+
+  geom_point(aes(y=gene_name_4,x=context_group,
+                 size=n_study_group,
+                 col=confidence_cat_group2))+
+  facet_grid(chr~'',scales = 'free',space = 'free')+
+  scale_size(range = c(1.25,5.5),breaks = c(2,7,12))+theme_minimal()+
+  scale_x_discrete(guide = guide_axis(angle = 90))+
+  theme(strip.text.x = element_text(angle = 90))+
+  labs(size='# datasets',col='Confidence level')+
+  scale_color_manual(values = c('brown1','deepskyblue4','darkseagreen3'))+  theme(
+    axis.text.y = element_markdown(),axis.title.y =element_blank() 
+  )
+p
+ggsave(fp(out,'ADloci_xQTL_summary_genome_wide_signif_top_gene_per_locus_3categories.pdf'),height = 9,width = 6)
+
+
 

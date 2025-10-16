@@ -11,7 +11,7 @@
 #(in this table each row is a variant-ADlocus-Method-context-gene_name information, and so facilitate querying informations ) 
 
 
-install.packages(c('openxlsx'))
+#install.packages(c('openxlsx'))
 
 source('main_text/6_AD_xQTL_genes/staging/gene_priorization_table/gene_prio_utils.R')
 
@@ -1251,8 +1251,8 @@ res_adxub<-fread(fp(out,'res_AD_variants_xQTL.csv.gz'))
 #FILTER: keep only variants with GWAS PIP/VCP > 0.1, for maximum of 5
 # if non of the variant has GWAS PIP/VCP > 0.1 we just show top one based on GWAS PIP/VCP and on xQTLPIP/VCP
 res_adxub[,top_variants:=((max_variant_inclusion_probability>=0.1)&(max_variant_inclusion_probability_rank<=5|cV2F_rank<=5))|max_variant_inclusion_probability_rank==1|variant_rank_xqtl==1|cV2F_rank==1|(rank(pval)<=1&!is.na(pval)),by='ADlocus']
-res_adxubf<-res_adxub[(top_variants)][!is.na(locus_index)]
-nrow(res_adxubf)#3073
+res_adxubf<-res_adxub[(top_variants)][!is.na(locus_index)][variant_ID!='']
+nrow(res_adxubf)#2985
 unique(res_adxubf$locus_index)
 
 #some stats
@@ -1293,8 +1293,12 @@ colorsmtd<-fread(fp(out,'pattern_coloring.tsv'))
 
 cols<-PrepColsMtd(cols,colsmtd,res_adxubf)
 unique(cols[,.(parent_column,grandparent_column)])|>tail(100)
+unique(cols[,.(parent_column,grandparent_column)])|>tail(100)
+
+setdiff(colnames(res_adxubf),cols$r_name)
 #get the main sheet
-wb<-CreateExcelFormat(res_adxubf,columns_mtd =cols,colors = colorsmtd)
+wb<-CreateExcelFormat(res_adxubf,columns_mtd =cols,
+                      wb = wb,colors = colorsmtd)
 
 
 #One sheet per broad context Creation #####
