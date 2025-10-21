@@ -283,7 +283,8 @@ SummarizeTable<-function(res_adx,
 
 WideTable<-function(res_adx,split.by=c('context_broad2','qtl_type')){
   
-  
+  #rm MEthpd= colocnooost and context = GWAS 
+  res_adx<-res_adx[!(Method=='AD_xQTL_colocalization'&str_detect(context,'AD'))]
   #   Add per broad context infos
   # separate by main context (cell type or tissue)
   message('generating columns per ',paste(split.by,collapse = ' and '))
@@ -418,7 +419,7 @@ WideTable<-function(res_adx,split.by=c('context_broad2','qtl_type')){
   #ORDER: Order locus per gene and variant importance, keeping the top context for each variant
   
   res_adxu<-unique(res_adx[Method!='trans_finemapping'][order(locus_index,
-                                                              confidence_lvl,
+                                                              confidence_lvl,n_study,
                                                               -abs(twas_z_gene_max),
                                                               cV2F_rank,variant_rank_xqtl)],
                    by=c('locus_index','gene_ID','variant_ID'))
