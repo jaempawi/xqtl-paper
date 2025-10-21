@@ -1207,11 +1207,11 @@ unique(res_adx[,.(context,context_short)])
 
 res_adx<-SummarizeTable(res_adx,group.by = 'context_short')
 colnames(res_adx)
+res_adx[variant_ID=='chr17:45667624:C:T'&gene_name=='ARL17A'][,.(TWAS_signif_gene,xQTL_effects)]
 
 unique(res_adx[,.(context,context_short)])
 
-fwrite(res_adxa,fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
-res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
+fwrite(res_adx,fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
 table(res_adx$Method)
 
 
@@ -1244,26 +1244,27 @@ if(file.exists('long_table_columns_selection.csv')){
 res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
 
 res_adxub<-WideTable(res_adx,split.by=c('context_broad2','qtl_type'))
+res_adxub[locus_index==152][gene_name=='ARL17A']$xQTL_effects|>unique()
+res_adxub[variant_ID=='chr17:45667624:C:T'&gene_name=='ARL17A'][,.(TWAS_signif_gene,xQTL_effects)]
 
 fwrite(res_adxub,fp(out,'res_AD_variants_xQTL.csv.gz'))
 res_adxub<-fread(fp(out,'res_AD_variants_xQTL.csv.gz'))
 
 #FILTER: keep only variants with GWAS PIP/VCP > 0.1, for maximum of 5
 # if non of the variant has GWAS PIP/VCP > 0.1 we just show top one based on GWAS PIP/VCP and on xQTLPIP/VCP
-res_adxub[,top_variants:=((max_variant_inclusion_probability>=0.1)&(max_variant_inclusion_probability_rank<=5|cV2F_rank<=5))|max_variant_inclusion_probability_rank==1|variant_rank_xqtl==1|cV2F_rank==1|(rank(pval)<=1&!is.na(pval)),by='ADlocus']
+res_adxub[,top_variants:=((max_variant_inclusion_probability>=0.1)|cV2F_rank<=5)|((max_variant_inclusion_probability_rank==1|variant_rank_xqtl==1|(rank(pval)==1&!is.na(pval)))),by='ADlocus']
 res_adxubf<-res_adxub[(top_variants)][!is.na(locus_index)][variant_ID!='']
-nrow(res_adxubf)#2985
+nrow(res_adxubf)#4309
 unique(res_adxubf$locus_index)
+res_adxubf[locus_index==152][gene_name=='ARL17A']$xQTL_effects|>unique()
 
 #some stats
-unique(res_adxubf$gene_name)|>length()#1128
-unique(res_adxubf[min_pval<5e-8]$gene_name)#602
+unique(res_adxubf$gene_name)|>length()#511
+unique(res_adxubf[min_pval<5e-8]$gene_name)#259
 res_adxubf$top_confidence|>table()
-# C1  C2  C3  C4  C5  C6 
-# 47  23 197 527 607  11 
-#with Trans:
-# C1   C2   C3   C4   C5   C6 
-# 47   23  197 1366 1443   11 
+ # CL1  CL2  CL3  CL4  CL5 
+ # 198   72  233  716 1266 
+
 
 unique(res_adxubf[order(locus_index,top_confidence)],
        by='locus_index')$top_confidence|>table()
@@ -1298,8 +1299,9 @@ unique(cols[,.(parent_column,grandparent_column)])|>tail(100)
 setdiff(colnames(res_adxubf),cols$r_name)
 #get the main sheet
 wb<-CreateExcelFormat(res_adxubf,columns_mtd =cols,
-                      wb = wb,colors = colorsmtd)
+                      colors = colorsmtd)
 
+saveWorkbook(wb, fp(out,'unified_AD_loci_xQTL_summary.xlsx'), overwrite = TRUE)
 
 #One sheet per broad context Creation #####
 #split per context keeping central information 
@@ -1319,7 +1321,7 @@ for(cont in colsmtd[wildcard=='context_broad2']$r_name){
   #FILTER: keep only variants with GWAS PIP/VCP > 0.1, for maximum of 5
   # if non of the variant has GWAS PIP/VCP > 0.1 we just show top one based on GWAS PIP/VCP and on xQTLPIP/VCP
   
-  res_adxcub[,top_variants:=((max_variant_inclusion_probability>=0.1)&(max_variant_inclusion_probability_rank<=5|cV2F_rank<=5))|max_variant_inclusion_probability_rank==1|variant_rank_xqtl==1|cV2F_rank==1,by='ADlocus']
+  res_adxcub[,top_variants:=((max_variant_inclusion_probability>=0.1)|cV2F_rank<=5)|((max_variant_inclusion_probability_rank==1|variant_rank_xqtl==1|(rank(pval)==1&!is.na(pval)))),by='ADlocus']
   res_adxcubf<-res_adxcub[(top_variants)]
  
   #add supplemental cols
@@ -1330,7 +1332,7 @@ for(cont in colsmtd[wildcard=='context_broad2']$r_name){
   res_adxcubf[,mlog10pval:=-log10(min_pval)]
   
   #variant inclusion top confidence level
-  res_adxcubf[,top_confidence:=str_extract(xQTL_effects,'C[0-9]')]
+  res_adxcubf[,top_confidence:=str_extract(xQTL_effects,'CL[0-9]')]
   res_adxcubf$top_confidence|>unique()
 
   wb<-CreateExcelFormat(res_adxcubf,columns_mtd =cols,colors = colorsmtd,

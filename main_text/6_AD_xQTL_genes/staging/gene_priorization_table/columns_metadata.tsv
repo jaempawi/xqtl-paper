@@ -17,7 +17,7 @@ max_zscore	Maximum zscore				5	1	0	0	0
 min_pval	Min p-value				5	1	0	0	0				
 gwas_significance	Significance				5	1	0	0	0				
 mlog10pval	log10(pval)				5	1	0	0	0	1	#f5f0f0	#FFEB84	#F8696B
-gwas_sources	gwas_sources	.			0	1	0	0	0				
+gwas_sources	GWAS associated to this variant	.			8	1	0	0	0				
 gwas_sources_effects	GWAS Sources				4	1	1	0	0				
 GWAS_methods	Detected methods				8	1	0	0	0				
 susie_coverage	Credible set coverage (SuSiE)				7	1	0	0	0				
@@ -28,12 +28,13 @@ tes	tes				0	1	0	0	0
 distance_from_tss	Distance from TSS				7	1	0	0	0				
 distance_from_tes	Distance from TES				7	1	0	0	0				
 twas_z_gene_max	Maximum TWAS zscore				6	1	0	0	0	1	#7482D6	#f5f0f0	#F8696B
+twas_z_gene_max_context	Maximum TWAS context				7	1	0	0	0				
 TWAS_signif_gene	TWAS significant				6	1	0	0	0				
 MR_signif_gene	MR significant				6	1	0	0	0				
 cTWAS_signif_gene	cTWAS significant				6	1	0	0	0				
 variant_inclusion_probability_xqtl	Maximum inclusion score	xQTLs variants prioritization			7	1	0	0	0				
 variant_rank_xqtl	Variant rank				7	1	0	0	0				
-method_xqtl	Method				7	1	0	0	0				
+method_xqtl	Method				7	0	1	0	0				
 context_xqtl	Context				7	1	0	0	0				
 effect_xqtl	effect				7	1	0	0	0				
 n.variant_xqtl	# variants within the loci				7	1	0	0	0				
