@@ -50,3 +50,11 @@ rsconnect/
 
 # Jupyter Book build files
 _build/
+
+**/.ipynb_checkpoints
+
+
+# remove icloud
+
+*.icloud
+
