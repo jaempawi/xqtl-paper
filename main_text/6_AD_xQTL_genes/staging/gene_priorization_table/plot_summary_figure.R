@@ -8,9 +8,8 @@ source('main_text/6_AD_xQTL_genes/staging/gene_priorization_table/gene_prio_util
 res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
 
 res_adx<-res_adx[Method!='trans_finemapping']
-#why certain dont have locus id?
-res_adx[is.na(locus_index)]$Method|>table()
-res_adx$Method|>table()
+
+
 
 #add the confidence level
 
@@ -217,7 +216,15 @@ res_adxlocge_cont_topf[,locus_gene_3:=factor(locus_gene_2,levels = unique(locus_
 
 
 
+chr19:44605749-45535295
+res_adxlocge_cont_topf[chr==19&pos>43905790 &pos<45905791]$gene_name|>unique()
+res_adxlocge_cont_topf[chr==19&pos>44605749 &pos<45535295]$gene_name|>unique()
 
+res_adx[chr==19&pos>43905790 &pos<45905791]$locus_index|>unique()
+res_adx[chr==19&pos>44605749 &pos<45535295]$locus_index|>unique()
+
+
+res_adxlocge_cont_topf[]
 p<-ggplot(res_adxlocge_cont_topf[!(APOE_region.gene)])+
   geom_point(aes(y=locus_gene_3,x=context_group,
                  size=n_study_group.locus,

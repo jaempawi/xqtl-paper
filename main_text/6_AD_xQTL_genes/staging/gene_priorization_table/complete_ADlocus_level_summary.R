@@ -1226,7 +1226,7 @@ unique(res_adx[,.(context,context_short)])
 
 res_adx<-SummarizeTable(res_adx,group.by = 'context_short')
 colnames(res_adx)
-res_adx[variant_ID=='chr17:45667624:C:T'&gene_name=='ARL17A'][,.(TWAS_signif_gene,xQTL_effects)]
+res_adx[variant_ID=='chr7:143414109:CCA:C'&gene_name=='ZYX'][,.(TWAS_signif_gene,xQTL_effects)]
 
 unique(res_adx[,.(context,context_short)])
 

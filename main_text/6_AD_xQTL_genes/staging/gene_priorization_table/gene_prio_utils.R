@@ -161,7 +161,8 @@ UnifyLoci<-function(loci,variant_col='variant_id',
 SummarizeTable<-function(res_adx,
                          group.by='context_short',
                          xqtl_methods=c('fSuSiE_finemapping','single_context_finemapping',
-                                        'multi_context_finemapping','AD_xQTL_colocalization','TWAS/MR','cTWAS')){
+                                        'multi_context_finemapping','AD_xQTL_colocalization',
+                                        'TWAS/MR','cTWAS','Coloc')){
   #res_adx<-res_adx[!str_detect(context,'^AD')]
   
   
@@ -184,7 +185,7 @@ SummarizeTable<-function(res_adx,
     }else if(any(Method%in%c('single_context_finemapping','fSuSiE_finemapping')&str_detect(credibleset,'cs95'),na.rm = T)&any(susie_coverage=='cs95',na.rm = TRUE)){
       'CL4'
     }else if(any(Method%in%c('AD_xQTL_colocalization','multi_context_finemapping',
-                             'single_context_finemapping','fSuSiE_finemapping','sn_sQTL'),na.rm = T)){
+                             'single_context_finemapping','fSuSiE_finemapping','sn_sQTL','Coloc'),na.rm = T)){
       'CL5'
     }else{
       'CL6'
