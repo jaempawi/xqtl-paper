@@ -1,0 +1,776 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Investigation of suggestive signal to suggest ‘new’ AD genes &#8212; FunGen-xQTL Manuscript Repository</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'main_text/5_AD_xQTL_genes_cis_trans/staging/gene_priorization_table/suggestive_signal';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">FunGen-xQTL Manuscript Repository</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../README.html">
+                    About
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../1_project_overview/index.html">Multi-omics QTL atlas of the aging human brain</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../2_single_context_cis/index.html">Fine-mapped QTL landscape across brain molecular phenotypes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/StatFunGen/xqtl-paper" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/StatFunGen/xqtl-paper/issues/new?title=Issue%20on%20page%20%2Fmain_text/5_AD_xQTL_genes_cis_trans/staging/gene_priorization_table/suggestive_signal.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../../_sources/main_text/5_AD_xQTL_genes_cis_trans/staging/gene_priorization_table/suggestive_signal.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Investigation of suggestive signal to suggest ‘new’ AD genes</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Investigation of suggestive signal to suggest ‘new’ AD genes</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ica1l">ICA1L</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rita1">RITA1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dok3">DOK3</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plekha1">PLEKHA1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ccnt2">CCNT2</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relaxing-to-include-cl5-gene">Relaxing to include CL5 gene</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#knop1">KNOP1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sppl2a">SPPL2A</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cep89">CEP89</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#id1"></a></li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="investigation-of-suggestive-signal-to-suggest-new-ad-genes">
+<h1>Investigation of suggestive signal to suggest ‘new’ AD genes<a class="headerlink" href="#investigation-of-suggestive-signal-to-suggest-new-ad-genes" title="Link to this heading">#</a></h1>
+<p>We will investigate non genome wide signif loci that are</p>
+<ul class="simple">
+<li><p>at least in Confidence Level 4 (i.e. overlap between  cs95 GWAS and cs95 single context eQTL),</p></li>
+<li><p>found in more than 2 GWAS,</p></li>
+<li><p>and overlaping with  at least 2 xQTL from same context group</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">out</span><span class="o">&lt;-</span><span class="s">&#39;.&#39;</span>
+<span class="nf">source</span><span class="p">(</span><span class="s">&#39;gene_prio_utils.R&#39;</span><span class="p">)</span>
+
+<span class="c1">#install.packages(&#39;ggtext&#39;)</span>
+<span class="w"> </span><span class="nf">library</span><span class="p">(</span><span class="n">ggtext</span><span class="p">)</span>
+
+<span class="n">res_adxlocge</span><span class="o">&lt;-</span><span class="nf">fread</span><span class="p">(</span><span class="nf">fp</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="s">&#39;res_summ_top_gene_by_locus.csv.gz&#39;</span><span class="p">))</span>
+<span class="n">contexts_order</span><span class="o">&lt;-</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;Exc eQTL&#39;</span><span class="p">,</span><span class="s">&#39;Exc sQTL&#39;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s">&#39;Inh eQTL&#39;</span><span class="p">,</span><span class="s">&#39;Inh sQTL&#39;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s">&#39;Oli eQTL&#39;</span><span class="p">,</span><span class="s">&#39;Oli sQTL&#39;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s">&#39;OPC eQTL&#39;</span><span class="p">,</span><span class="s">&#39;OPC sQTL&#39;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s">&#39;Ast eQTL&#39;</span><span class="p">,</span><span class="s">&#39;Ast caQTL&#39;</span><span class="p">,</span><span class="s">&#39;Ast sQTL&#39;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s">&#39;Mic eQTL&#39;</span><span class="p">,</span><span class="s">&#39;Mic caQTL&#39;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s">&#39;Immune eQTL&#39;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s">&#39;bulk eQTL&#39;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s">&#39;bulk sQTL&#39;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s">&#39;bulk (g)pQTL&#39;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s">&#39;bulk epiQTL&#39;</span><span class="p">)</span>
+<span class="nf">setdiff</span><span class="p">(</span><span class="n">res_adxlocge</span><span class="o">$</span><span class="n">context_group</span><span class="p">,</span><span class="n">contexts_order</span><span class="p">)</span>
+<span class="n">res_adxlocge</span><span class="p">[,</span><span class="n">context_group</span><span class="o">:=</span><span class="nf">factor</span><span class="p">(</span><span class="n">context_group</span><span class="p">,</span><span class="n">levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">contexts_order</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>28 threads available for data.table
+</pre></div>
+</div>
+<div class="output text_html"></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">res_adxlocgef</span><span class="o">&lt;-</span><span class="n">res_adxlocge</span><span class="p">[</span><span class="o">!</span><span class="p">(</span><span class="n">genomewide_sig_gene</span><span class="p">)][</span><span class="n">gene_name</span><span class="o">%in%</span><span class="n">gene_name</span><span class="p">[</span><span class="n">confidence_lvl_group</span><span class="o">%in%</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;CL1&#39;</span><span class="p">,</span><span class="s">&#39;CL2&#39;</span><span class="p">,</span><span class="s">&#39;CL3&#39;</span><span class="p">,</span><span class="s">&#39;CL4&#39;</span><span class="p">)</span><span class="o">&amp;</span><span class="n">n_gwas_locus</span><span class="o">&gt;</span><span class="m">2</span><span class="o">&amp;</span><span class="n">n_study_group.locus</span><span class="o">&gt;=</span><span class="m">2</span><span class="p">]]</span>
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="o">&lt;-</span><span class="nf">unique</span><span class="p">(</span><span class="n">res_adxlocgef</span><span class="p">,</span><span class="n">by</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;gene_name&#39;</span><span class="p">,</span><span class="s">&#39;context_group&#39;</span><span class="p">,</span><span class="s">&#39;locus_index&#39;</span><span class="p">))</span>
+
+
+<span class="c1">#sep causal vs correlated </span>
+<span class="c1">#add if frpm, APOE region, from AD by proxy only, or from more than one locus</span>
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">confidence_cat_group</span><span class="o">:=</span><span class="nf">ifelse</span><span class="p">(</span><span class="n">confidence_lvl_group.locus</span><span class="o">%in%</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;CL1&#39;</span><span class="p">,</span><span class="s">&quot;CL2&quot;</span><span class="p">),</span><span class="s">&#39;Putative causal (CL1, CL2)&#39;</span><span class="p">,</span><span class="nf">ifelse</span><span class="p">(</span><span class="n">confidence_lvl_group.locus</span><span class="o">==</span><span class="s">&#39;CL3&#39;</span><span class="p">,</span><span class="s">&#39;Putative causal (CL3)&#39;</span><span class="p">,</span><span class="s">&#39;Associated&#39;</span><span class="p">))]</span>
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">confidence_cat_group</span><span class="o">:=</span><span class="nf">factor</span><span class="p">(</span><span class="n">confidence_cat_group</span><span class="p">,</span><span class="n">levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;Putative causal (CL1, CL2)&#39;</span><span class="p">,</span><span class="s">&#39;Putative causal (CL3)&#39;</span><span class="p">,</span><span class="s">&#39;Associated&#39;</span><span class="p">))]</span>
+
+<span class="c1">#add if frpm, APOE region, or from AD by proxy only</span>
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[</span><span class="nf">order</span><span class="p">(</span><span class="n">locus_index</span><span class="p">),</span><span class="n">locus_gene_2</span><span class="o">:=</span><span class="nf">paste</span><span class="p">(</span><span class="n">gene_name</span><span class="p">,</span><span class="nf">match</span><span class="p">(</span><span class="n">locus_index</span><span class="p">,</span>
+<span class="w">                                                                              </span><span class="nf">unique</span><span class="p">(</span><span class="n">locus_index</span><span class="p">[</span><span class="nf">order</span><span class="p">(</span><span class="n">chr</span><span class="p">,</span><span class="n">tss</span><span class="p">,</span><span class="n">pos</span><span class="p">)])),</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;_&#39;</span><span class="p">),</span>
+<span class="w">                       </span><span class="n">by</span><span class="o">=</span><span class="nf">.</span><span class="p">(</span><span class="n">gene_name</span><span class="p">)]</span>
+
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">locus_gene_2</span><span class="o">:=</span><span class="nf">paste0</span><span class="p">(</span><span class="s">&quot;&lt;i&gt;&quot;</span><span class="p">,</span><span class="n">locus_gene_2</span><span class="p">[</span><span class="m">1</span><span class="p">],</span><span class="s">&#39;&lt;/i&gt;&#39;</span><span class="p">),</span>
+<span class="w">                       </span><span class="n">by</span><span class="o">=</span><span class="s">&#39;locus_gene&#39;</span><span class="p">]</span>
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">locus_gene_2</span><span class="o">:=</span><span class="nf">ifelse</span><span class="p">(</span><span class="o">!</span><span class="nf">all</span><span class="p">(</span><span class="n">only_by_proxi</span><span class="p">,</span><span class="n">na.rm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">T</span><span class="p">),</span><span class="nf">paste0</span><span class="p">(</span><span class="s">&quot;&lt;b&gt;&quot;</span><span class="p">,</span><span class="n">locus_gene_2</span><span class="p">[</span><span class="m">1</span><span class="p">],</span><span class="s">&#39;&lt;/b&gt;&#39;</span><span class="p">),</span>
+<span class="w">                                             </span><span class="n">locus_gene_2</span><span class="p">[</span><span class="m">1</span><span class="p">]),</span>
+<span class="w">                       </span><span class="n">by</span><span class="o">=</span><span class="s">&#39;locus_gene&#39;</span><span class="p">]</span>
+
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">locus_gene_3</span><span class="o">:=</span><span class="nf">paste0</span><span class="p">(</span><span class="n">locus_gene_2</span><span class="p">,</span><span class="s">&#39; (&#39;</span><span class="p">,</span><span class="n">n_gwas_locus</span><span class="p">,</span><span class="s">&#39;)&#39;</span><span class="p">),</span>
+<span class="w">                       </span><span class="n">by</span><span class="o">=</span><span class="s">&#39;locus_gene&#39;</span><span class="p">]</span>
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">locus_gene_3</span><span class="o">:=</span><span class="nf">factor</span><span class="p">(</span><span class="n">locus_gene_3</span><span class="p">,</span><span class="n">levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">unique</span><span class="p">(</span><span class="n">locus_gene_3</span><span class="p">[</span><span class="nf">order</span><span class="p">(</span><span class="o">-</span><span class="n">tss</span><span class="p">,</span><span class="o">-</span><span class="n">pos</span><span class="p">)]))]</span>
+
+
+
+<span class="n">p</span><span class="o">&lt;-</span><span class="nf">ggplot</span><span class="p">(</span><span class="n">res_adxlocge_cont_top2f</span><span class="p">[</span><span class="o">!</span><span class="p">(</span><span class="n">APOE_region.gene</span><span class="p">)])</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">geom_point</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">locus_gene_3</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">context_group</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">size</span><span class="o">=</span><span class="n">n_study_group.locus</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">col</span><span class="o">=</span><span class="n">confidence_cat_group</span><span class="p">))</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">facet_grid</span><span class="p">(</span><span class="n">chr</span><span class="o">~</span><span class="s">&#39;&#39;</span><span class="p">,</span><span class="n">scales</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;free&#39;</span><span class="p">,</span><span class="n">space</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;free&#39;</span><span class="p">)</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">scale_size</span><span class="p">(</span><span class="n">range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1.5</span><span class="p">,</span><span class="m">5.5</span><span class="p">),</span><span class="n">breaks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="m">7</span><span class="p">,</span><span class="m">12</span><span class="p">))</span><span class="o">+</span><span class="nf">theme_minimal</span><span class="p">()</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">guide</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">guide_axis</span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">90</span><span class="p">))</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">theme</span><span class="p">(</span><span class="n">strip.text.x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">element_text</span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">90</span><span class="p">))</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">labs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s">&#39;# datasets&#39;</span><span class="p">,</span><span class="n">col</span><span class="o">=</span><span class="s">&#39;Confidence level&#39;</span><span class="p">)</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">scale_color_manual</span><span class="p">(</span><span class="n">values</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;brown1&#39;</span><span class="p">,</span><span class="s">&#39;deepskyblue4&#39;</span><span class="p">,</span><span class="s">&#39;darkseagreen3&#39;</span><span class="p">))</span><span class="o">+</span><span class="w">  </span><span class="nf">theme</span><span class="p">(</span>
+<span class="w">    </span><span class="n">axis.text.y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">element_markdown</span><span class="p">(),</span><span class="n">axis.title.y</span><span class="w"> </span><span class="o">=</span><span class="nf">element_blank</span><span class="p">()</span><span class="w"> </span>
+<span class="w">  </span><span class="p">)</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">scale_y_discrete</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="kr">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="nf">str_remove</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;[A-Za-z0-9]+_[2-9]|_[0-9]+&quot;</span><span class="p">))</span>
+<span class="n">p</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../../../../_images/95449acca3baf88122c3545b5e87e04caaf4196541b50367254130c880033dfa.png"><img alt="../../../../_images/95449acca3baf88122c3545b5e87e04caaf4196541b50367254130c880033dfa.png" src="../../../../_images/95449acca3baf88122c3545b5e87e04caaf4196541b50367254130c880033dfa.png" style="width: 420px; height: 420px;" />
+</a>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">options</span><span class="p">(</span><span class="n">repr.plot.width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">12</span><span class="p">,</span><span class="w"> </span><span class="n">repr.plot.height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span><span class="p">)</span>
+<span class="n">p</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../../../../_images/3103884651c9190ddcc373334d5e2132cae4c2ebfa776f0912defa32b6b6671c.png"><img alt="../../../../_images/3103884651c9190ddcc373334d5e2132cae4c2ebfa776f0912defa32b6b6671c.png" src="../../../../_images/3103884651c9190ddcc373334d5e2132cae4c2ebfa776f0912defa32b6b6671c.png" style="width: 720px; height: 600px;" />
+</a>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">unique</span><span class="p">(</span><span class="n">res_adxlocge_cont_top2f</span><span class="o">$</span><span class="n">gene_name</span><span class="p">)</span><span class="o">|&gt;</span><span class="nf">cat</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CCNT2,ICA1L,DOK3,BLNK,PLEKHA1,RITA1,CTSH,CEP89
+</pre></div>
+</div>
+</div>
+</div>
+<p>These 8 genes are foundfor at least 2 datasets from same context group overlapping/coloc with at least 3 GWAS .<br />
+BLNK and CTSH already discussed in Xuewei paper, so focus on the others.</p>
+<section id="ica1l">
+<h2>ICA1L<a class="headerlink" href="#ica1l" title="Link to this heading">#</a></h2>
+<p>pQTL is MR significant as already found in a <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/34381170/">previous study</a>, confirming that increase protein abundance associate with less risk of AD. Interestingly here we found that these variants (top: chr2:202800206:C:G) associate with <strong>decrease</strong> RNA production, in variety of cell type and in bulk, and also associate with reduction of unproductive splicing. One mechanism therefore could be that the variant (which is in intron X) is help reduce unproductive mRNA splicing, therefore more productive splicing can be translated into protein.
+Also described involved in stroke, small vessel disease and mechanism could be through myelin disruption .</p>
+</section>
+<section id="rita1">
+<h2>RITA1<a class="headerlink" href="#rita1" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Tubulin-binding protein that acts as a negative regulator of Notch signaling pathway, and help reduce DNA damage through p53 activation[<a class="reference external" href="https://aacrjournals.org/mct/article/21/10/1524/709525/Decreased-DNA-Damage-and-Improved-p53-Specificity">ref</a>].</p></li>
+<li><p>the AD locus, present in Bellenguez, Jansen and Wightman overlap  with <strong>Exc specific eQTL</strong> and have been identified as a new AD locus in this study. 2 independant mQTL signal falling in this AD locus, suggesting epigenetic regulation of this gene</p></li>
+<li><p>is MR significant in bulk brain eQTL</p></li>
+<li><p>chr12:113239646:C:T downstream of the gene, decrease its expression which increase AD risk</p></li>
+</ul>
+</section>
+<section id="dok3">
+<h2>DOK3<a class="headerlink" href="#dok3" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>DOK3 have 5/7 GWAS overlapping with Immune eQTL</p></li>
+<li><p>is in the center node of the PPI.
+<img alt="image.png" src="main_text/5_AD_xQTL_genes_cis_trans/staging/gene_priorization_table/attachment:7c21f6c6-a0b4-425a-ac3a-e17cb7a07655.png" /></p></li>
+<li><p>Overlap with both bulk Macrophage and Microglia eQTL</p></li>
+<li><p>known to interact with INPP5D to negatively regulate JNK singaling
+==&gt; good AD candidate, even if not TWAS significant</p></li>
+</ul>
+</section>
+<section id="plekha1">
+<h2>PLEKHA1<a class="headerlink" href="#plekha1" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>is cTWAS significant in Mic</p></li>
+<li><p>reduced Mic and protein expression lead to reduce AD risk</p></li>
+<li><p>known  Age Related Macular Degeneration gene, and already found <a class="reference external" href="https://link.springer.com/article/10.1007/s10787-024-01583-z">MR significant in AD</a></p></li>
+<li><p>bind a lipid signaling molecule, important for regulating immune response</p></li>
+</ul>
+</section>
+<section id="ccnt2">
+<h2>CCNT2<a class="headerlink" href="#ccnt2" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>regulate transcription elongation by RNA polymerase II controling of early and late viral transcription, important regulator of HIV and other retrovirus development</p></li>
+<li><p>chr2:134904108:A:G increase CCNT2 expression, particularly in Inh, which increase AD risk</p></li>
+</ul>
+</section>
+<section id="relaxing-to-include-cl5-gene">
+<h2>Relaxing to include CL5 gene<a class="headerlink" href="#relaxing-to-include-cl5-gene" title="Link to this heading">#</a></h2>
+<p>i.e. allows also overlap based on coloc or cs70%</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="c1">#relax to CL5</span>
+
+<span class="n">res_adxlocgef</span><span class="o">&lt;-</span><span class="n">res_adxlocge</span><span class="p">[</span><span class="o">!</span><span class="p">(</span><span class="n">genomewide_sig_gene</span><span class="p">)][</span><span class="n">gene_name</span><span class="o">%in%</span><span class="n">gene_name</span><span class="p">[</span><span class="n">confidence_lvl_group</span><span class="o">%in%</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;CL1&#39;</span><span class="p">,</span><span class="s">&#39;CL2&#39;</span><span class="p">,</span><span class="s">&#39;CL3&#39;</span><span class="p">,</span><span class="s">&#39;CL4&#39;</span><span class="p">,</span><span class="s">&#39;CL5&#39;</span><span class="p">)</span><span class="o">&amp;</span><span class="n">n_gwas_locus</span><span class="o">&gt;</span><span class="m">2</span><span class="o">&amp;</span><span class="n">n_study_group.locus</span><span class="o">&gt;=</span><span class="m">2</span><span class="p">]]</span>
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="o">&lt;-</span><span class="nf">unique</span><span class="p">(</span><span class="n">res_adxlocgef</span><span class="p">,</span><span class="n">by</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;gene_name&#39;</span><span class="p">,</span><span class="s">&#39;context_group&#39;</span><span class="p">,</span><span class="s">&#39;locus_index&#39;</span><span class="p">))</span>
+
+
+<span class="c1">#sep causal vs correlated </span>
+<span class="c1">#add if frpm, APOE region, from AD by proxy only, or from more than one locus</span>
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">confidence_cat_group</span><span class="o">:=</span><span class="nf">ifelse</span><span class="p">(</span><span class="n">confidence_lvl_group.locus</span><span class="o">%in%</span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;CL1&#39;</span><span class="p">,</span><span class="s">&quot;CL2&quot;</span><span class="p">),</span><span class="s">&#39;Putative causal (CL1, CL2)&#39;</span><span class="p">,</span><span class="nf">ifelse</span><span class="p">(</span><span class="n">confidence_lvl_group.locus</span><span class="o">==</span><span class="s">&#39;CL3&#39;</span><span class="p">,</span><span class="s">&#39;Putative causal (CL3)&#39;</span><span class="p">,</span><span class="s">&#39;Associated&#39;</span><span class="p">))]</span>
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">confidence_cat_group</span><span class="o">:=</span><span class="nf">factor</span><span class="p">(</span><span class="n">confidence_cat_group</span><span class="p">,</span><span class="n">levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;Putative causal (CL1, CL2)&#39;</span><span class="p">,</span><span class="s">&#39;Putative causal (CL3)&#39;</span><span class="p">,</span><span class="s">&#39;Associated&#39;</span><span class="p">))]</span>
+
+<span class="c1">#add if frpm, APOE region, or from AD by proxy only</span>
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[</span><span class="nf">order</span><span class="p">(</span><span class="n">locus_index</span><span class="p">),</span><span class="n">locus_gene_2</span><span class="o">:=</span><span class="nf">paste</span><span class="p">(</span><span class="n">gene_name</span><span class="p">,</span><span class="nf">match</span><span class="p">(</span><span class="n">locus_index</span><span class="p">,</span>
+<span class="w">                                                                              </span><span class="nf">unique</span><span class="p">(</span><span class="n">locus_index</span><span class="p">[</span><span class="nf">order</span><span class="p">(</span><span class="n">chr</span><span class="p">,</span><span class="n">tss</span><span class="p">,</span><span class="n">pos</span><span class="p">)])),</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;_&#39;</span><span class="p">),</span>
+<span class="w">                       </span><span class="n">by</span><span class="o">=</span><span class="nf">.</span><span class="p">(</span><span class="n">gene_name</span><span class="p">)]</span>
+
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">locus_gene_2</span><span class="o">:=</span><span class="nf">paste0</span><span class="p">(</span><span class="s">&quot;&lt;i&gt;&quot;</span><span class="p">,</span><span class="n">locus_gene_2</span><span class="p">[</span><span class="m">1</span><span class="p">],</span><span class="s">&#39;&lt;/i&gt;&#39;</span><span class="p">),</span>
+<span class="w">                       </span><span class="n">by</span><span class="o">=</span><span class="s">&#39;locus_gene&#39;</span><span class="p">]</span>
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">locus_gene_2</span><span class="o">:=</span><span class="nf">ifelse</span><span class="p">(</span><span class="o">!</span><span class="nf">all</span><span class="p">(</span><span class="n">only_by_proxi</span><span class="p">,</span><span class="n">na.rm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">T</span><span class="p">),</span><span class="nf">paste0</span><span class="p">(</span><span class="s">&quot;&lt;b&gt;&quot;</span><span class="p">,</span><span class="n">locus_gene_2</span><span class="p">[</span><span class="m">1</span><span class="p">],</span><span class="s">&#39;&lt;/b&gt;&#39;</span><span class="p">),</span>
+<span class="w">                                             </span><span class="n">locus_gene_2</span><span class="p">[</span><span class="m">1</span><span class="p">]),</span>
+<span class="w">                       </span><span class="n">by</span><span class="o">=</span><span class="s">&#39;locus_gene&#39;</span><span class="p">]</span>
+
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">locus_gene_3</span><span class="o">:=</span><span class="nf">paste0</span><span class="p">(</span><span class="n">locus_gene_2</span><span class="p">,</span><span class="s">&#39; (&#39;</span><span class="p">,</span><span class="n">n_gwas_locus</span><span class="p">,</span><span class="s">&#39;)&#39;</span><span class="p">),</span>
+<span class="w">                       </span><span class="n">by</span><span class="o">=</span><span class="s">&#39;locus_gene&#39;</span><span class="p">]</span>
+
+<span class="n">res_adxlocge_cont_top2f</span><span class="p">[,</span><span class="n">locus_gene_3</span><span class="o">:=</span><span class="nf">factor</span><span class="p">(</span><span class="n">locus_gene_3</span><span class="p">,</span><span class="n">levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">unique</span><span class="p">(</span><span class="n">locus_gene_3</span><span class="p">[</span><span class="nf">order</span><span class="p">(</span><span class="o">-</span><span class="n">tss</span><span class="p">,</span><span class="o">-</span><span class="n">pos</span><span class="p">)]))]</span>
+
+
+
+<span class="n">p</span><span class="o">&lt;-</span><span class="nf">ggplot</span><span class="p">(</span><span class="n">res_adxlocge_cont_top2f</span><span class="p">[</span><span class="o">!</span><span class="p">(</span><span class="n">APOE_region.gene</span><span class="p">)])</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">geom_point</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">locus_gene_3</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">context_group</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">size</span><span class="o">=</span><span class="n">n_study_group.locus</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">col</span><span class="o">=</span><span class="n">confidence_cat_group</span><span class="p">))</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">facet_grid</span><span class="p">(</span><span class="n">chr</span><span class="o">~</span><span class="s">&#39;&#39;</span><span class="p">,</span><span class="n">scales</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;free&#39;</span><span class="p">,</span><span class="n">space</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;free&#39;</span><span class="p">)</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">scale_size</span><span class="p">(</span><span class="n">range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1.5</span><span class="p">,</span><span class="m">5.5</span><span class="p">),</span><span class="n">breaks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="m">7</span><span class="p">,</span><span class="m">12</span><span class="p">))</span><span class="o">+</span><span class="nf">theme_minimal</span><span class="p">()</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">guide</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">guide_axis</span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">90</span><span class="p">))</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">theme</span><span class="p">(</span><span class="n">strip.text.x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">element_text</span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">90</span><span class="p">))</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">labs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s">&#39;# datasets&#39;</span><span class="p">,</span><span class="n">col</span><span class="o">=</span><span class="s">&#39;Confidence level&#39;</span><span class="p">)</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">scale_color_manual</span><span class="p">(</span><span class="n">values</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s">&#39;brown1&#39;</span><span class="p">,</span><span class="s">&#39;deepskyblue4&#39;</span><span class="p">,</span><span class="s">&#39;darkseagreen3&#39;</span><span class="p">))</span><span class="o">+</span><span class="w">  </span><span class="nf">theme</span><span class="p">(</span>
+<span class="w">    </span><span class="n">axis.text.y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">element_markdown</span><span class="p">(),</span><span class="n">axis.title.y</span><span class="w"> </span><span class="o">=</span><span class="nf">element_blank</span><span class="p">()</span><span class="w"> </span>
+<span class="w">  </span><span class="p">)</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">scale_y_discrete</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="kr">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="nf">str_remove</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;[A-Za-z0-9]+_[2-9]|_[0-9]+&quot;</span><span class="p">))</span>
+<span class="n">p</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../../../../_images/d37d1ce71705cd423660d81afe2177edb7510b4c66627ba844fcfc47f68f350b.png"><img alt="../../../../_images/d37d1ce71705cd423660d81afe2177edb7510b4c66627ba844fcfc47f68f350b.png" src="../../../../_images/d37d1ce71705cd423660d81afe2177edb7510b4c66627ba844fcfc47f68f350b.png" style="width: 720px; height: 600px;" />
+</a>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">unique</span><span class="p">(</span><span class="n">res_adxlocge_cont_top2f</span><span class="o">$</span><span class="n">gene_name</span><span class="p">)</span><span class="o">|&gt;</span><span class="nf">cat</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CCNT2,ICA1L,CEBPZOS,OTULIN,DOK3,TFAM,BLNK,PLEKHA1,RITA1,CTSH,SPPL2A,KNOP1,COG7,WDR81,CEP89
+</pre></div>
+</div>
+</div>
+</div>
+<section id="knop1">
+<h3>KNOP1<a class="headerlink" href="#knop1" title="Link to this heading">#</a></h3>
+<p>3 GWAS overlap with 8+ bulk eQTL, as well as mQTL,  Exc, Inh, Oli OPCs e and sQTL
+Have been identified as TWAS/MR significant in a <a class="reference external" href="https://link.springer.com/article/10.1007/s10787-024-01583-z">previous study</a></p>
+</section>
+<section id="sppl2a">
+<h3>SPPL2A<a class="headerlink" href="#sppl2a" title="Link to this heading">#</a></h3>
+<p>4 GWAS (J, K, W, and B) from cs95 overlap with the 3 Oli eQTL (as well as Exc and  Inh but in only 2 datasets). the signal is splitted in 2 ‘independant’ loci (num 122 and 123): locus 122 is where J, K, and W coloc is found while locus 123 is where B signal is found, but bothe have some coloc with Oli eQTL so these 2 loci are probably in LD.</p>
+<p>SPPL2A is GxGD aspartyl proteases in lysosome and known to <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0021925820477300">cleave the AD gene TMEM106B</a></p>
+</section>
+<section id="cep89">
+<h3>CEP89<a class="headerlink" href="#cep89" title="Link to this heading">#</a></h3>
+<p>cs95 from 3 GWAS (wightman and its 2 subsets) overlap with Exc eQTL and sQTL. top1 variant based on cV2F score is in intron of CEP89. involved ciliogenesis, cell projection and synaptic transmission. Do not seems to have been nominated before as an AD gene.</p>
+</section>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1><a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "r"
+        },
+        kernelOptions: {
+            name: "ir",
+            path: "./main_text/5_AD_xQTL_genes_cis_trans/staging/gene_priorization_table"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'ir'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Investigation of suggestive signal to suggest ‘new’ AD genes</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ica1l">ICA1L</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rita1">RITA1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dok3">DOK3</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plekha1">PLEKHA1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ccnt2">CCNT2</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relaxing-to-include-cl5-gene">Relaxing to include CL5 gene</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#knop1">KNOP1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sppl2a">SPPL2A</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cep89">CEP89</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#id1"></a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By FunGen-AD Consortium
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
