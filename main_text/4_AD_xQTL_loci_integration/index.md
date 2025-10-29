@@ -10,3 +10,4 @@ This chapter includes the following notebooks:
 - [PPI Networks for Selected AD Risk Genes in xQTL Loci](Figure_5f_PPI)
 - [Consensus Variant-to-Function Score for AD](Figure_5g_cV2F)
 - [GWAS EADB watershed](Figure_5h_GWAS_enrichment)
+- [Supplementary Figures](Figure_S5_prediction)

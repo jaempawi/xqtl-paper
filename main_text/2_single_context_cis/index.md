@@ -2,7 +2,7 @@
 
 Single context cis-xQTL fine-mapping chapters:
 
-- [Detectable and mappable xQTL loci in single context finemapping](Figure_1b_num_xQTL_loci_single_context)
+- [Detectable and mappable xQTL loci in single context finemapping](Figure_1_num_xQTL_loci_single_context)
 - [EOO](Figure_EOO)
 - [Frequency of Events in Distance Category](Figure_S2_single_context_cs_distance)
 - [sLDSC GWAS specific](Figure_sLDSC_GWAS_specific)
