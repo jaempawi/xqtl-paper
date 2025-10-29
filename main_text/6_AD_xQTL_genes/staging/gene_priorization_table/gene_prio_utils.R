@@ -176,13 +176,13 @@ SummarizeTable<-function(res_adx,
   #C6: TWAS only
   message('summarizing per ',group.by,' the xQTL evidence for each variant')
   res_adx[!str_detect(context,'^AD'),confidence_lvl:={
-    if((any(MR_signif,na.rm = T)|any(cTWAS_signif,na.rm = T))&(any(Method%in%c('single_context_finemapping','fSuSiE_finemapping')&str_detect(credibleset,'cs95'),na.rm = T)&any(susie_coverage=='cs95',na.rm = TRUE))){
+    if((any(MR_signif,na.rm = T)|any(cTWAS_signif,na.rm = T))&(any(Method%in%c('single_context_finemapping','fSuSiE_finemapping')&str_detect(credibleset,'cs95')&susie_coverage%in%c('cs95','cs70'),na.rm = T))){
       'CL1'
     }else if((any(MR_signif,na.rm = T)|any(cTWAS_signif,na.rm = T))&any(Method=='AD_xQTL_colocalization',na.rm = T)){
       'CL2'
     }else if(any(TWAS_signif,na.rm = T)&(any(Method%in%c('single_context_finemapping','fSuSiE_finemapping')&str_detect(credibleset,'cs95'),na.rm = T)|any(Method=='AD_xQTL_colocalization',na.rm = T))){
       'CL3'
-    }else if(any(Method%in%c('single_context_finemapping','fSuSiE_finemapping')&str_detect(credibleset,'cs95'),na.rm = T)&any(susie_coverage=='cs95',na.rm = TRUE)){
+    }else if(any(Method%in%c('single_context_finemapping','fSuSiE_finemapping')&str_detect(credibleset,'cs95')&susie_coverage%in%c('cs95','cs70'),na.rm = T)){
       'CL4'
     }else if(any(Method%in%c('AD_xQTL_colocalization','multi_context_finemapping',
                              'single_context_finemapping','fSuSiE_finemapping','sn_sQTL','Coloc'),na.rm = T)){

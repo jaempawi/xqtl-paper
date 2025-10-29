@@ -3,6 +3,7 @@ source('main_text/6_AD_xQTL_genes/staging/gene_priorization_table/gene_prio_util
 
 #install.packages('ggtext')
  library(ggtext)
+library(patchwork)
 
 #update table figure
 res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
@@ -43,12 +44,16 @@ res_adxloc<-unique(res_adx[Method!='trans_finemapping'][!context_short%in%c('B',
 res_adxloc[gene_name!='',n.study.gene.locus:=length(unique(context)),by=.(gene_name,locus_index)]
 
 res_adxloc[gene_name!='',top_gene:=gene_name==gene_name[order(confidence_lvl,-n.study.gene.locus,cV2F_rank)][1],by=.(locus_index)]
-res_adxloc[gene_name!='',gene_name[order(confidence_lvl,-n.study.gene.locus,cV2F_rank)][1],by=.(locus_index)]
+res_adxloc[gene_name!='',top_genes:=gene_name%in%gene_name[confidence_lvl%in%sort(confidence_lvl)[1]],by=.(locus_index)]
 
+res_adxloc[chr==16][gene_name!='',gene_name[order(confidence_lvl,-n.study.gene.locus,cV2F_rank)][1:2],by=.(locus_index)][1:100]|>unique()
 
+res_adxloc[gene_name=='YPEL3']$locus_index
+res_adxloc[locus_index==134][(top_genes)]$gene_name|>unique()
+res_adx[locus_index==134&gene_name=='INO80E'&Method=='single_context_finemapping'&context_short=='Ast eQTL'&str_detect(locuscontext_id,'cs70')]$susie_coverage
 
-res_adxlocge<-res_adxloc[context_short!=''][order(locus_index,-cV2F_rank)][(top_gene)]
-unique(res_adxlocge$locus_index)|>length() #186
+res_adxlocge<-res_adxloc[context_short!=''][order(locus_index,cV2F_rank)][(top_genes)]
+unique(res_adxlocge$locus_index)|>length() #177
 unique(res_adxlocge$gene_name)|>length()#167
 
 #
@@ -105,146 +110,174 @@ res_adxlocge[,context_group:=factor(context_group,levels = contexts_order)]
 
 
 res_adxlocgef<-res_adxlocge[(genomewide_sig_gene)]
-#subset gene with at least CL5
-res_adxlocge_cont_top<-unique(res_adxlocgef,by=c('gene_name','context_group'))[gene_name%in%gene_name[confidence_lvl_group%in%c('CL1','CL2','CL3','CL4','CL5')]]
 
-res_adxlocge_cont_top[,gene_name:=factor(gene_name,levels =unique(gene_name[order(chr,pos)]))]
+unique(res_adxlocgef$locus_index)|>length() #98
+unique(res_adxlocgef$gene_name)|>length()#79> 116
 
-conf_colors<-fread(fp(out,'pattern_coloring.tsv'))[pattern%in%paste0('CL',1:6)]
-p<-ggplot(res_adxlocge_cont_top)+
-  geom_point(aes(y=gene_name,x=context_group,
-                 size=n_study_group,
-                 col=confidence_lvl_group))+
-  facet_grid(chr~'',scales = 'free',space = 'free')+scale_size(range = c(1.5,5))+theme_minimal()+
-  scale_x_discrete(guide = guide_axis(angle = 90))+
-  theme(strip.text.x = element_text(angle = 90))+
-  labs(size='# datasets',col='Confidence level')+
-  scale_color_manual(values = conf_colors$fill_color)
-p
+unique(res_adxlocgef$locus_gene)|>length()#98> 138
+unique(res_adxlocgef[!(APOE_region.gene)]$locus_gene)|>length()#86>122
 
 
-#sep causal vs correlated and remove all C6
-#C6 is dropped, C1/C2/C3 are called causal, and C4/C5 are called “correlative” or “correlated”
-res_adxlocge_cont_topf<-res_adxlocge_cont_top[confidence_lvl_group!='CL6']
-
-#add if frpm, APOE region, or from AD by proxy only
-res_adxlocge_cont_topf[,gene_name_2:=as.character(gene_name)]
-
-res_adxlocge_cont_topf[,gene_name_2:=ifelse(any(APOE_region),
-                                             paste0("<i>",gene_name_2[1],'</i>'),
-                                                    gene_name_2),
-                        by='gene_name']
-
-res_adxlocge_cont_topf[,gene_name_2:=ifelse(!all(only_by_proxi,na.rm = T),paste0("<b>",gene_name_2[1],'</b>'),
-                                                    gene_name_2[1]),
-                        by='gene_name']
-
-res_adxlocge_cont_topf$gene_name_2|>unique()
-
-
-res_adxlocge_cont_topf[,gene_name_3:=paste0(gene_name_2,' (',n_gwas_gene,')'),
-                        by='gene_name']
-
-res_adxlocge_cont_topf$gene_name_3|>unique()
-
-#add number of loci
-res_adxlocge_cont_topf[,gene_name_4:=paste0(gene_name_2,ifelse(n_loci_gene>1,'*',''),' (',n_gwas_gene,')'),
-                        by='gene_name']
-
-res_adxlocge_cont_topf$gene_name_4|>unique()
-
-res_adxlocge_cont_topf[,gene_name_4:=factor(gene_name_4,levels = unique(gene_name_4[order(gene_name)]))]
-
-res_adxlocge_cont_topf[is.na(context_group)][,.(context)]|>unique()
-
-#sep in 3categories
-res_adxlocge_cont_topf[,confidence_cat_group:=ifelse(confidence_lvl_group%in%c('CL1',"CL2"),'Putative causal (CL1, CL2)',ifelse(confidence_lvl_group=='CL3','Putative causal (CL3)','Associated'))]
-res_adxlocge_cont_topf[,confidence_cat_group:=factor(confidence_cat_group,levels = c('Putative causal (CL1, CL2)','Putative causal (CL3)','Associated'))]
-
-p<-ggplot(res_adxlocge_cont_topf[!(APOE_region.gene)])+
-  geom_point(aes(y=gene_name_4,x=context_group,
-                 size=n_study_group,
-                 col=confidence_cat_group))+
-  facet_grid(chr~'',scales = 'free',space = 'free')+
-  scale_size(range = c(1.25,5.5),breaks = c(2,7,12))+theme_minimal()+
-  scale_x_discrete(guide = guide_axis(angle = 90))+
-  theme(strip.text.x = element_text(angle = 90))+
-  labs(size='# datasets',col='Confidence level')+
-  scale_color_manual(values = c('brown1','deepskyblue4','darkseagreen3'))+  theme(
-    axis.text.y = element_markdown(),axis.title.y =element_blank() 
-  )
-p
-ggsave(fp(out,'ADloci_xQTL_summary_genome_wide_signif_top_gene_per_locus_3categories.pdf'),height = 9,width = 7)
-ggsave(fp(out,'ADloci_xQTL_summary_genome_wide_signif_top_gene_per_locus_3categories.png'),height = 9,width = 7)
-
-
-
-#version separating each locus####
+# extract each locus
 
 res_adxlocge_cont_top<-unique(res_adxlocgef,by=c('gene_name','context_group','locus_index'))[gene_name%in%gene_name[confidence_lvl_group.locus%in%c('CL1','CL2','CL3','CL4','CL5')]]
 
-#res_adxlocge_cont_top[,locus_gene:=factor(locus_gene,levels =unique(locus_gene[order(chr,pos)]))]
 
 #sep causal vs correlated and remove all C6
 #C6 is dropped
 res_adxlocge_cont_topf<-res_adxlocge_cont_top[confidence_lvl_group.locus!='CL6']
 #sep in 3categories
-res_adxlocge_cont_topf[,confidence_cat_group:=ifelse(confidence_lvl_group.locus%in%c('CL1',"CL2"),'Putative causal (CL1, CL2)',ifelse(confidence_lvl_group.locus=='CL3','Putative causal (CL3)','Associated'))]
-res_adxlocge_cont_topf[,confidence_cat_group:=factor(confidence_cat_group,levels = c('Putative causal (CL1, CL2)','Putative causal (CL3)','Associated'))]
+res_adxlocge_cont_topf[,confidence_cat_group:=ifelse(confidence_lvl_group.locus%in%c('CL1',"CL2"),'Putative causal (CL1, CL2)',ifelse(confidence_lvl_group.locus=='CL3','Putative causal (CL3)','Associated (CL4, CL5)'))]
+res_adxlocge_cont_topf[,confidence_cat_group:=factor(confidence_cat_group,levels = c('Putative causal (CL1, CL2)','Putative causal (CL3)','Associated (CL4, CL5)'))]
 
+
+#add GWAS signals
+res_ad<-fread(fp(out,'AD_loci_unified.csv.gz'))
+res_ad<-merge(res_ad,unique(res_adx[,.(locus_index,ADlocusID)]))
+
+res_ad[,gwas_pvalue:=getPval(gwas_zscore)]
+
+res_adxlocge_gwas<-unique(res_ad[order(gwas_pvalue)][gwas_source!=''],by=c('locus_index','gwas_source'))
+res_adxlocge_gwas[,chr:=str_extract(chr,'[0-9]+')|>as.numeric()]
+
+res_adxlocge_gwas[,gwas_pvalue10:=ifelse(gwas_pvalue>1e-10,gwas_pvalue,1e-10)]
+res_adxlocge_gwas[,gwas_sig:=ifelse(gwas_pvalue<5e-8,'p<5e-8',ifelse(gwas_pvalue<1e-6,'p<1e-6',ifelse(gwas_pvalue<1e-5,'p<1e-5',
+                                                                                                      'p>1e-5 but coloc')))]
+res_adxlocge_gwas[is.na(gwas_sig),gwas_sig:='p>1e-5 but coloc']
+res_adxlocge_gwas[,gwas_sig:=factor(gwas_sig,levels=c('p>1e-5 but coloc','p<1e-5','p<1e-6','p<5e-8'))]
+
+
+res_adxlocge_gwas[,gwas_short:=str_extract(gwas_source,'Bellenguez|Jansen|Kunkle|Wightman')]
+table(res_adxlocge_gwas$gwas_short)
+res_adxlocge_gwas[str_detect(gwas_source,'EADB|EADI|UKB|23andMe'),gwas_short:=paste(gwas_short,str_extract(gwas_source,'EADB|EADI|UKB|23andMe'),sep='_')]
+res_adxlocge_gwas[gwas_short=='Wightman_23andMe',gwas_short:='Wightman_no23andMe']
+res_adxlocge_gwas[gwas_short=='Wightman_UKB',gwas_short:='Wightman_no23AndUKB']
+
+#order by n AD cases (non AD by proxi first) 
+res_adxlocge_gwas[,ad_by_proxi:=!gwas_source%in%c('AD_Bellenguez_EADB_2022','AD_Bellenguez_EADI_2022',
+                                          'AD_Wightman_ExcludingUKBand23andME_2021',
+                                          'AD_Kunkle_Stage1_2019'),by='locus_index']
+
+gwmt<-fread('../xqtl-resources/data/GWAS/gwas_n_cases_control.tsv')
+res_adxlocge_gwas<-merge(res_adxlocge_gwas,gwmt[,.(gwas_source=study_id,n_case,n_control)])
+
+
+
+#bold if not from  AD by proxy 
+res_adxlocge_gwas[,gwas_short2:=ifelse(!ad_by_proxi,paste0("<b>",gwas_short,'</b>'),
+                                            gwas_short)]
+
+res_adxlocge_gwas[,gwas_short2:=factor(gwas_short2,levels = unique(gwas_short2[order(ad_by_proxi,-n_case)]))]
+levels(res_adxlocge_gwas$gwas_short2)
+
+
+res_adxlocge_gwasf<-merge(res_adxlocge_gwas,unique(res_adxlocge_cont_topf[!(APOE_region.gene)][,.(locus_index,locus_gene_3,locus_gene)]),by='locus_index')
+
+
+#annot genes
 res_adxlocge_cont_topf[,locus_gene_2:=paste(gene_name,match(locus_gene,
                                                             unique(locus_gene[order(chr,tss,min_pval)])),sep='_'),
                        by=.(gene_name)]
 
-
 res_adxlocge_cont_topf[,locus_gene_2:=paste0("<i>",locus_gene_2[1],'</i>'),
                        by='locus_gene']
+#add asterisk if others genes in a CL4+ locus
 
-#add number of gwas in this locus and if from genome wide sig loc
-res_adxlocge_cont_topf[,locus_gene_2:=paste0(locus_gene_2,' (',n_gwas_locus,ifelse(!genomewide_sig_loc,'*',''),')'),
+res_adxlocge_cont_topf[,n_gene_cl:=length(unique(gene_name)),by=c('locus_index','top_confidence')]
+res_adxlocge_cont_topf[,locus_gene_2:=paste0(locus_gene_2,ifelse(n_gene_cl>1&!top_confidence%in%c("CL1",'CL2','CL3'),
+                                                                 '*','')),
                        by='locus_gene']
-
-
 #add if from  AD by proxy only
 res_adxlocge_cont_topf[,locus_gene_2:=ifelse(!all(only_by_proxi,na.rm = T),paste0("<b>",locus_gene_2[1],'</b>'),
                                              locus_gene_2[1]),
                        by='locus_gene']
 
-
 #order per gene tss and locus position
 res_adxlocge_cont_topf[,locus_gene_3:=factor(locus_gene_2,levels = unique(locus_gene_2[order(-chr,-tss,-as.numeric(str_extract(locus_gene_2,'_[0-9+]')|>str_remove('_')))]))]
 
+#filter the gwas and annot with the gene too
+res_adxlocge_gwasf<-merge(res_adxlocge_gwas,unique(res_adxlocge_cont_topf[!(APOE_region.gene)][,.(locus_index,locus_gene_3,locus_gene)]),by='locus_index')
 
 
-chr19:44605749-45535295
-res_adxlocge_cont_topf[chr==19&pos>43905790 &pos<45905791]$gene_name|>unique()
-res_adxlocge_cont_topf[chr==19&pos>44605749 &pos<45535295]$gene_name|>unique()
 
-res_adx[chr==19&pos>43905790 &pos<45905791]$locus_index|>unique()
-res_adx[chr==19&pos>44605749 &pos<45535295]$locus_index|>unique()
+#Plot all genes having causal evidence per loci for the CL1-3, and only top1 gene (based on number of datasets) for the CL4+
 
-
-res_adxlocge_cont_topf[]
-p<-ggplot(res_adxlocge_cont_topf[!(APOE_region.gene)])+
+#chr1-9
+p1<-ggplot(res_adxlocge_cont_topf[chr%in%1:9][!(APOE_region.gene)&(top_gene|top_confidence%in%c("CL1",'CL2','CL3'))])+
   geom_point(aes(y=locus_gene_3,x=context_group,
                  size=n_study_group.locus,
                  col=confidence_cat_group))+
   facet_grid(chr~'',scales = 'free',space = 'free')+
-  scale_size(range = c(1.5,5.5),breaks = c(2,7,12))+theme_minimal()+
+  scale_size(range = c(1.5,5),breaks = c(2,7,12))+theme_minimal()+
   scale_x_discrete(guide = guide_axis(angle = 90))+
   theme(strip.text.x = element_text(angle = 90))+
   labs(size='# datasets',col='Confidence level')+
-  scale_color_manual(values = c('brown1','deepskyblue4','darkseagreen3'))+  theme(
-    axis.text.y = element_markdown(),axis.title.y =element_blank() 
+  scale_color_manual(values = c('brown1','deepskyblue4','darkseagreen3'))+ 
+  theme(strip.text.x = element_text(angle = 90),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank())+
+  scale_y_discrete(labels=function(x) str_remove(x, "[A-Za-z0-9]+_[2-9]|_[0-9]+"))
+p1
+
+g1<-ggplot(res_adxlocge_gwasf[chr%in%1:9])+
+  geom_point(aes(y=locus_gene_3,x=gwas_short2,
+                 col=gwas_sig),size=1,shape=15)+
+  facet_grid(chr~'',scales = 'free',space = 'free')+
+  # scale_size(range = c(0.5,2))+
+  theme_minimal()+
+  scale_x_discrete(guide = guide_axis(angle = 90))+
+  scale_color_manual(values = c('grey','bisque3','orange3','brown4'))+
+  theme(axis.text.x = element_markdown(size = 7),
+        axis.text.y = element_markdown(size=7),axis.title.y =element_blank(),
+        strip.text = element_blank(),   # remove facet text
+        strip.background = element_blank() 
   )+
   scale_y_discrete(labels=function(x) str_remove(x, "[A-Za-z0-9]+_[2-9]|_[0-9]+"))
-p
+
+# P1<-g1+p1+plot_layout(guides = 'collect',widths = c(1.5,6))&
+#   theme(plot.margin = margin(0, 0, 0, 0)) 
+# P1
+
+
+#chr10-22
+p2<-ggplot(res_adxlocge_cont_topf[chr%in%10:22][!(APOE_region.gene)&(top_gene|top_confidence%in%c("CL1",'CL2','CL3'))])+
+  geom_point(aes(y=locus_gene_3,x=context_group,
+                 size=n_study_group.locus,
+                 col=confidence_cat_group))+
+  facet_grid(chr~'',scales = 'free',space = 'free')+
+  scale_size(range = c(1.5,5),breaks = c(2,7,12))+theme_minimal()+
+  scale_x_discrete(guide = guide_axis(angle = 90))+
+  theme(strip.text.x = element_text(angle = 90))+
+  labs(size='# datasets',col='Confidence level')+
+  scale_color_manual(values = c('brown1','deepskyblue4','darkseagreen3'))+ 
+  theme(strip.text.x = element_text(angle = 90),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank())+
+  scale_y_discrete(labels=function(x) str_remove(x, "[A-Za-z0-9]+_[2-9]|_[0-9]+"))
+p2
+
+g2<-ggplot(res_adxlocge_gwasf[chr%in%10:22])+
+  geom_point(aes(y=locus_gene_3,x=gwas_short2,
+                 col=gwas_sig),size=1,shape=15)+
+  facet_grid(chr~'',scales = 'free',space = 'free')+
+  # scale_size(range = c(0.5,2))+
+  theme_minimal()+
+  scale_x_discrete(guide = guide_axis(angle = 90))+
+  scale_color_manual(values = c('grey','bisque3','orange3','brown4'))+
+  theme(axis.text.x = element_markdown(size = 7),
+        axis.text.y = element_markdown(size=7),axis.title.y =element_blank(),
+        strip.text = element_blank(),   # remove facet text
+        strip.background = element_blank() 
+  )+
+  scale_y_discrete(labels=function(x) str_remove(x, "[A-Za-z0-9]+_[2-9]|_[0-9]+"))
 
 
 
-ggsave(fp(out,'ADloci_xQTL_summary_genome_wide_signif_top_gene_per_locus_3categories.pdf'),height = 12,width = 7)
+g1+p1+g2+p2+plot_layout(guides = 'collect',widths = c(1.5,6,1.5,6))&
+  theme(plot.margin = margin(0, 0, 0, 0)) 
+ggsave(fp(out,'ADloci_xQTL_summary_genome_wide_signif_top_gene_per_locus_3categories_gwas_plot_top_CL_genes_all_causal_top1_associated.pdf'),height = 9,width = 10)
+ggsave(fp(out,'ADloci_xQTL_summary_genome_wide_signif_top_gene_per_locus_3categories_gwas_plot_top_CL_genes_all_causal_top1_associated.png'),height = 9,width = 10)
 
-ggsave(fp(out,'ADloci_xQTL_summary_genome_wide_signif_top_gene_per_locus_3categories.png'),height = 12,width = 7)
 
 
 #suggestive signal####
@@ -260,43 +293,70 @@ res_adxlocge_cont_top2f<-unique(res_adxlocgef,by=c('gene_name','context_group','
 #add if frpm, APOE region, from AD by proxy only, or from more than one locus
 
 res_adxlocge_cont_top2f[,confidence_cat_group:=ifelse(confidence_lvl_group.locus%in%c('CL1',"CL2"),'Putative causal (CL1, CL2)',ifelse(confidence_lvl_group.locus=='CL3','Putative causal (CL3)','Associated'))]
-res_adxlocge_cont_top2f[,confidence_cat_group:=factor(confidence_cat_group,levels = c('Putative causal (CL1, CL2)','Putative causal (CL3)','Associated'))]
+res_adxlocge_cont_top2f[,confidence_cat_group:=factor(confidence_cat_group,levels = c('Putative causal (CL1, CL2)','Putative causal (CL3)','Associated (CL4, CL5)'))]
 
-#add if frpm, APOE region, or from AD by proxy only
-res_adxlocge_cont_top2f[order(locus_index),locus_gene_2:=paste(gene_name,match(locus_index,
-                                                                              unique(locus_index[order(chr,tss,pos)])),sep='_'),
+
+
+#annot genes
+res_adxlocge_cont_top2f[,locus_gene_2:=paste(gene_name,match(locus_gene,
+                                                            unique(locus_gene[order(chr,tss,min_pval)])),sep='_'),
                        by=.(gene_name)]
-
 
 res_adxlocge_cont_top2f[,locus_gene_2:=paste0("<i>",locus_gene_2[1],'</i>'),
                        by='locus_gene']
+#add asterisk if others genes in a CL4+ locus
 
+res_adxlocge_cont_top2f[,n_gene_cl:=length(unique(gene_name)),by=c('locus_index','top_confidence')]
+res_adxlocge_cont_top2f[,locus_gene_2:=paste0(locus_gene_2,ifelse(n_gene_cl>1&!top_confidence%in%c("CL1",'CL2','CL3'),
+                                                                 '*','')),
+                       by='locus_gene']
+#add if from  AD by proxy only
 res_adxlocge_cont_top2f[,locus_gene_2:=ifelse(!all(only_by_proxi,na.rm = T),paste0("<b>",locus_gene_2[1],'</b>'),
                                              locus_gene_2[1]),
                        by='locus_gene']
 
+#order per gene tss and locus position
+res_adxlocge_cont_top2f[,locus_gene_3:=factor(locus_gene_2,levels = unique(locus_gene_2[order(-chr,-tss,-as.numeric(str_extract(locus_gene_2,'_[0-9+]')|>str_remove('_')))]))]
 
-res_adxlocge_cont_top2f[,locus_gene_3:=paste0(locus_gene_2,' (',n_gwas_locus,')'),
-                       by='locus_gene']
-
-res_adxlocge_cont_top2f[,locus_gene_3:=factor(locus_gene_3,levels = unique(locus_gene_3[order(-tss,-pos)]))]
+#filter the gwas and annot with the gene too
+res_adxlocge_gwas2f<-merge(res_adxlocge_gwas,unique(res_adxlocge_cont_top2f[!(APOE_region.gene)][,.(locus_index,locus_gene_3,locus_gene)]),by='locus_index')
 
 
 
-p<-ggplot(res_adxlocge_cont_top2f[!(APOE_region.gene)])+
+p1<-ggplot(res_adxlocge_cont_top2f[!(APOE_region.gene)&(top_gene|top_confidence%in%c("CL1",'CL2','CL3'))])+
   geom_point(aes(y=locus_gene_3,x=context_group,
                  size=n_study_group.locus,
                  col=confidence_cat_group))+
   facet_grid(chr~'',scales = 'free',space = 'free')+
-  scale_size(range = c(1.5,5.5),breaks = c(2,7,12))+theme_minimal()+
+  scale_size(range = c(1.5,5),breaks = c(2,7,12))+theme_minimal()+
   scale_x_discrete(guide = guide_axis(angle = 90))+
   theme(strip.text.x = element_text(angle = 90))+
   labs(size='# datasets',col='Confidence level')+
-  scale_color_manual(values = c('brown1','deepskyblue4','darkseagreen3'))+  theme(
-    axis.text.y = element_markdown(),axis.title.y =element_blank() 
+  scale_color_manual(values = c('brown1','deepskyblue4','darkseagreen3'))+ 
+  theme(strip.text.x = element_text(angle = 90),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank())+
+  scale_y_discrete(labels=function(x) str_remove(x, "[A-Za-z0-9]+_[2-9]|_[0-9]+"))
+p1
+
+g1<-ggplot(res_adxlocge_gwas2f)+
+  geom_point(aes(y=locus_gene_3,x=gwas_short2,
+                 col=gwas_sig),size=1,shape=15)+
+  facet_grid(chr~'',scales = 'free',space = 'free')+
+  # scale_size(range = c(0.5,2))+
+  theme_minimal()+
+  scale_x_discrete(guide = guide_axis(angle = 90))+
+  scale_color_manual(values = c('grey','bisque3','orange3','brown4'))+
+  theme(axis.text.x = element_markdown(size = 7),
+        axis.text.y = element_markdown(size=7),axis.title.y =element_blank(),
+        strip.text = element_blank(),   # remove facet text
+        strip.background = element_blank() 
   )+
   scale_y_discrete(labels=function(x) str_remove(x, "[A-Za-z0-9]+_[2-9]|_[0-9]+"))
-p
+
+P1<-g1+p1+plot_layout(guides = 'collect',widths = c(1.5,6))&
+  theme(plot.margin = margin(0, 0, 0, 0))
+P1
 
 ggsave(fp(out,'ADloci_xQTL_summary_suggestive_loci_top_gene_per_locus_3categories.png'),height = 5,width = 6)
 
