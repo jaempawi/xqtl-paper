@@ -171,8 +171,6 @@ res_adxlocge_gwas[,gwas_short2:=factor(gwas_short2,levels = unique(gwas_short2[o
 levels(res_adxlocge_gwas$gwas_short2)
 
 
-res_adxlocge_gwasf<-merge(res_adxlocge_gwas,unique(res_adxlocge_cont_topf[!(APOE_region.gene)][,.(locus_index,locus_gene_3,locus_gene)]),by='locus_index')
-
 
 #annot genes
 res_adxlocge_cont_topf[,locus_gene_2:=paste(gene_name,match(locus_gene,
@@ -196,7 +194,7 @@ res_adxlocge_cont_topf[,locus_gene_2:=ifelse(!all(only_by_proxi,na.rm = T),paste
 res_adxlocge_cont_topf[,locus_gene_3:=factor(locus_gene_2,levels = unique(locus_gene_2[order(-chr,-tss,-as.numeric(str_extract(locus_gene_2,'_[0-9+]')|>str_remove('_')))]))]
 
 #filter the gwas and annot with the gene too
-res_adxlocge_gwasf<-merge(res_adxlocge_gwas,unique(res_adxlocge_cont_topf[!(APOE_region.gene)][,.(locus_index,locus_gene_3,locus_gene)]),by='locus_index')
+res_adxlocge_gwasf<-merge(res_adxlocge_gwas,unique(res_adxlocge_cont_topf[!(APOE_region.gene)&(top_gene|top_confidence%in%c("CL1",'CL2','CL3'))][,.(locus_index,locus_gene_3,locus_gene)]),by='locus_index')
 
 
 
@@ -319,7 +317,7 @@ res_adxlocge_cont_top2f[,locus_gene_2:=ifelse(!all(only_by_proxi,na.rm = T),past
 res_adxlocge_cont_top2f[,locus_gene_3:=factor(locus_gene_2,levels = unique(locus_gene_2[order(-chr,-tss,-as.numeric(str_extract(locus_gene_2,'_[0-9+]')|>str_remove('_')))]))]
 
 #filter the gwas and annot with the gene too
-res_adxlocge_gwas2f<-merge(res_adxlocge_gwas,unique(res_adxlocge_cont_top2f[!(APOE_region.gene)][,.(locus_index,locus_gene_3,locus_gene)]),by='locus_index')
+res_adxlocge_gwas2f<-merge(res_adxlocge_gwas,unique(res_adxlocge_cont_top2f[!(APOE_region.gene)&(top_gene|top_confidence%in%c("CL1",'CL2','CL3'))][,.(locus_index,locus_gene_3,locus_gene)]),by='locus_index')
 
 
 
