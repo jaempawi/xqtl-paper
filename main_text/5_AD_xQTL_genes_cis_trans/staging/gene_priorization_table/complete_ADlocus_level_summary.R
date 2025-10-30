@@ -7,12 +7,12 @@
 #- excel_metadata.tsv containing some meta information for the excel sheet construction
 #- pattern_coloring.tsv containing all pattern to color in the excel sheet
 #1 metadata is optional
-#- long_table_columns_selection.csv to generate a long table with selected columns from the table res_allanalysis_ADloci_overlap.csv.gz generated in step III 
+#- long_table_columns_selection.csv to generate a long table with selected columns from the table xQTL_all_methods_overlap_with_AD_loci_unified_cs95orColocs_Pval1e5.csv.gz generated in step III 
 #(in this table each row is a variant-ADlocus-Method-context-gene_name information, and so facilitate querying informations ) 
 
 
 #install.packages(c('openxlsx'))
-setwd('main_text/6_AD_xQTL_genes/staging/gene_priorization_table/')
+setwd('main_text/5_AD_xQTL_genes_cis_trans/staging/gene_priorization_table/')
 source('gene_prio_utils.R')
 
 out<-'.'
@@ -774,8 +774,8 @@ table(unique(res_ad,by=c('ADlocus','variant_ID'))$ADlocusID)
 
 #save
 unique(res_ad[(is.cs95)]$ADlocusID)
-fwrite(res_ad,fp(out,'AD_loci_unified.csv.gz'))
-res_ad<-fread(fp(out,'AD_loci_unified.csv.gz'))
+fwrite(res_ad,fp(out,'AD_loci_unified_cs95orColocs.csv.gz'))
+res_ad<-fread(fp(out,'AD_loci_unified_cs95orColocs.csv.gz'))
 
 
 #one variant per line
@@ -1230,7 +1230,7 @@ res_adx[variant_ID=='chr7:143414109:CCA:C'&gene_name=='ZYX'][,.(TWAS_signif_gene
 
 unique(res_adx[,.(context,context_short)])
 
-fwrite(res_adx,fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
+fwrite(res_adx,fp(out,'xQTL_all_methods_overlap_with_AD_loci_unified_cs95orColocs_Pval1e5.csv.gz'))
 table(res_adx$Method)
 
 
@@ -1260,7 +1260,7 @@ if(file.exists('long_table_columns_selection.csv')){
 
 
 #IV) WIDE TABLE CREATION  ####
-res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
+res_adx<-fread(fp(out,'xQTL_all_methods_overlap_with_AD_loci_unified_cs95orColocs_Pval1e5.csv.gz'))
 
 res_adxub<-WideTable(res_adx,split.by=c('context_broad2','qtl_type'))
 res_adxub[locus_index==152][gene_name=='ARL17A']$xQTL_effects|>unique()
