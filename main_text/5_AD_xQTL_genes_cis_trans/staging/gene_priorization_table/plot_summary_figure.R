@@ -1,12 +1,11 @@
-out<-'main_text/6_AD_xQTL_genes/staging/gene_priorization_table/'
-source('main_text/6_AD_xQTL_genes/staging/gene_priorization_table/gene_prio_utils.R')
+out<-'main_text/5_AD_xQTL_genes_cis_trans/staging/gene_priorization_table/'
+source('main_text/5_AD_xQTL_genes_cis_trans/staging/gene_priorization_table/gene_prio_utils.R')
 
 #install.packages('ggtext')
  library(ggtext)
-library(patchwork)
 
 #update table figure
-res_adx<-fread(fp(out,'res_allanalysis_ADloci_overlap.csv.gz'))
+res_adx<-fread(fp(out,'xQTL_all_methods_overlap_with_AD_loci_unified_cs95orColocs_Pval1e5.csv.gz'))
 
 res_adx<-res_adx[Method!='trans_finemapping']
 
@@ -132,7 +131,7 @@ res_adxlocge_cont_topf[,confidence_cat_group:=factor(confidence_cat_group,levels
 
 
 #add GWAS signals
-res_ad<-fread(fp(out,'AD_loci_unified.csv.gz'))
+res_ad<-fread(fp(out,'AD_loci_unified_cs95orColocs.csv.gz'))
 res_ad<-merge(res_ad,unique(res_adx[,.(locus_index,ADlocusID)]))
 
 res_ad[,gwas_pvalue:=getPval(gwas_zscore)]
