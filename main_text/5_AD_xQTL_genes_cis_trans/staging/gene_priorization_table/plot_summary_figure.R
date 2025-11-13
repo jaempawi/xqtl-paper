@@ -38,7 +38,14 @@ res_adx[,n_gwas_locus:=strsplit(gwas_sources,'\\|')|>unlist()|>unique()|>length(
 res_adx[is.na(APOE_region),APOE_region:=FALSE]
 
 res_adx[,APOE_region.gene:=any(APOE_region),by='gene_name']
+
+
 res_adx[,chr:=seqid(variant_ID[1],only_num = T),by=.(variant_ID)]
+
+res_adx[,MAPT_region:=chr==17&pos>45307498 &pos> 46836265]
+res_adx[is.na(MAPT_region),MAPT_region:=FALSE]
+
+res_adx[,MAPT_region.locus:=any(MAPT_region),by='locus_index']
 
 #get at locus level and cis information only
 res_adxloc<-unique(res_adx[Method!='trans_finemapping'][!context_short%in%c('B','J','K','W')][order(locus_gene,confidence_lvl,cV2F_rank)],by=c('locus_gene','context'))
@@ -439,7 +446,8 @@ l1+g1+p1+l2+g2+p2+plot_layout(guides = 'collect',widths = c(0.5,1.5,6,0.5,1.5,6)
 
 
 #with all all genes####
-#add GWAS signals
+
+#get GWAS signals
 res_ad<-fread(fp(out,'AD_loci_unified_cs95orColocs.csv.gz'))
 res_ad<-merge(res_ad,unique(res_adx[,.(locus_index,ADlocusID)]))
 
@@ -468,15 +476,13 @@ res_adxloc_gwas[,ad_by_proxi:=!gwas_source%in%c('AD_Bellenguez_EADB_2022','AD_Be
 
 gwmt<-fread('../xqtl-resources/data/GWAS/gwas_n_cases_control.tsv')
 res_adxloc_gwas<-merge(res_adxloc_gwas,gwmt[,.(gwas_source=study_id,n_case,n_control)])
-
-
-
 #bold if not from  AD by proxy 
 res_adxloc_gwas[,gwas_short2:=ifelse(!ad_by_proxi,paste0("<b>",gwas_short,'</b>'),
                                      gwas_short)]
 
 res_adxloc_gwas[,gwas_short2:=factor(gwas_short2,levels = unique(gwas_short2[order(ad_by_proxi,-n_case)]))]
 levels(res_adxloc_gwas$gwas_short2)
+
 
 
 # group some contexts
@@ -552,7 +558,6 @@ res_adxlocf_cont_topf[,locus_gene_2:=ifelse(!all(only_by_proxi,na.rm = T),paste0
 #order per gene tss and locus position
 res_adxlocf_cont_topf[,locus_gene_3:=factor(locus_gene_2,levels = unique(locus_gene_2[order(chr,-tss,-min_pval)]))]
 
-res_adxlocf_cont_topf[is.na(chr)]
 SummPanel<-function(res_adxqtloc,res_adxloc_gwas,palette=brewer.pal(8, "Pastel1")){
   #filter the gwas and annot with the gene too
   res_adxloc_gwasf<-merge(res_adxloc_gwas,
@@ -617,6 +622,15 @@ wrap_plots(ps)+plot_layout(guides = 'collect',widths = rep(c(0.5,1.5,6),4))&
   theme(plot.margin = margin(0, 0, 0, 0)) 
 
 
+#excluding APOE MAPT
+splits<-list(1:7,8:15,16:22)
+
+ps<-lapply(splits, function(chrs){
+  SummPanel(res_adxlocf_cont_topf[chr%in%chrs][!(MAPT_region.locus|APOE_region.gene)],res_adxloc_gwas)
+})|>unlist(recursive = FALSE)
+
+wrap_plots(ps)+plot_layout(guides = 'collect',widths = rep(c(0.5,1.5,6),length(splits)))&
+  theme(plot.margin = margin(0, 0, 0, 0)) 
 
 
 
