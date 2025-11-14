@@ -6,6 +6,62 @@ library(ggtext)
 library(patchwork)
 library(RColorBrewer)
 
+SummPanel<-function(res_adxqtloc,res_adxloc_gwas,palette=brewer.pal(8, "Pastel1")){
+  #filter the gwas and annot with the gene too
+  res_adxloc_gwasf<-merge(res_adxloc_gwas,
+                          unique(res_adxqtloc[,.(locus_index,locus_gene_3,locus_gene)]),by='locus_index',allow.cartesian = TRUE)
+  
+  p<-ggplot(res_adxqtloc)+
+    geom_point(aes(y=locus_gene_3,x=context_group,
+                   size=n_study_group.locus,
+                   col=confidence_cat_group))+
+    facet_grid(chr~'',scales = 'free',space = 'free')+
+    scale_size(range = c(1.5,5),breaks = c(2,7,12))+theme_minimal()+
+    scale_x_discrete(guide = guide_axis(angle = 90))+
+    theme(strip.text.x = element_text(angle = 90))+
+    labs(size='# datasets',col='Confidence level')+
+    scale_color_manual(values = c('brown1','deepskyblue4','darkseagreen3'))+ 
+    theme(strip.text.x = element_text(angle = 90),
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank())+
+    scale_y_discrete(labels=function(x) str_remove(x, "_[0-9]+"))
+  
+  g<-ggplot(res_adxloc_gwasf)+
+    geom_point(aes(y=locus_gene_3,x=gwas_short2,
+                   col=gwas_sig),size=1,shape=15)+
+    facet_grid(chr~'',scales = 'free',space = 'free')+
+    # scale_size(range = c(0.5,2))+
+    theme_minimal()+
+    scale_x_discrete(guide = guide_axis(angle = 90))+
+    scale_color_manual(values = c('grey','bisque3','orange3','brown4'))+
+    theme(axis.text.x = element_markdown(size = 7),
+          axis.text.y = element_blank(),
+          axis.title.y =element_blank(),
+          strip.text = element_blank(),   # remove facet text
+          strip.background = element_blank() 
+    )
+  #add the locus number
+  colors <- data.table(locus_index=unique(res_adxqtloc$locus_index),
+                       color=palette)
+  
+  l<-ggplot(unique(res_adxqtloc,
+                   by=c('locus_gene_3')),
+            aes(x=0,y=locus_gene_3))+
+    geom_tile(aes(fill=as.factor(locus_index)))+scale_fill_manual(values = setNames(colors$color,as.character(colors$locus_index)))+
+    geom_text(aes(label=locus_index),size=2)+
+    facet_grid(chr~'',scales = 'free',space = 'free')+theme_minimal()+
+    theme(axis.text.y = element_markdown(size=6),
+          axis.title.y = element_blank(), 
+          strip.text = element_blank(),   # remove facet text
+          strip.background = element_blank(),
+          axis.text.x=element_blank(),axis.title.x = element_blank(),
+          legend.position = "none")+
+    scale_y_discrete(labels=function(x) str_remove(x, "[A-Za-z0-9]+_[2-9]|_[0-9]+"))
+  
+  
+  return(list(l,g,p))
+}
+
 #update table figure
 res_adx<-fread(fp(out,'xQTL_all_methods_overlap_with_AD_loci_unified_cs95orColocs_Pval1e5.csv.gz'))
 
@@ -40,7 +96,7 @@ res_adx[is.na(APOE_region),APOE_region:=FALSE]
 res_adx[,APOE_region.gene:=any(APOE_region),by='gene_name']
 
 
-res_adx[,chr:=seqid(variant_ID[1],only_num = T),by=.(variant_ID)]
+res_adx[,chr:=seqid(ADlocusID[1],only_num = T),by=.(ADlocusID)]
 
 res_adx[,MAPT_region:=chr==17&pos>45307498 &pos> 46836265]
 res_adx[is.na(MAPT_region),MAPT_region:=FALSE]
@@ -480,6 +536,8 @@ res_adxloc_gwas<-merge(res_adxloc_gwas,gwmt[,.(gwas_source=study_id,n_case,n_con
 res_adxloc_gwas[,gwas_short2:=ifelse(!ad_by_proxi,paste0("<b>",gwas_short,'</b>'),
                                      gwas_short)]
 
+fwrite(res_adxloc_gwas,fp(out,'res_summ_all_gwas_by_locus.csv.gz'))
+
 res_adxloc_gwas[,gwas_short2:=factor(gwas_short2,levels = unique(gwas_short2[order(ad_by_proxi,-n_case)]))]
 levels(res_adxloc_gwas$gwas_short2)
 
@@ -501,12 +559,10 @@ res_adxloc[,n_study_group.locus:=length(unique(context)),by=.(gene_name,locus_in
 res_adxloc[,confidence_lvl_group.locus:=sort(confidence_lvl)[1],by=.(gene_name,locus_index,context_group)]
 
 
-
 fwrite(res_adxloc,fp(out,'res_summ_all_genes_by_locus.csv.gz'))
 
 res_adxloc<-fread(fp(out,'res_summ_all_genes_by_locus.csv.gz'))
 
-#genome wide signifcant htis
 
 contexts_order<-c('Exc eQTL','Exc sQTL',
                   'Inh eQTL','Inh sQTL',
@@ -522,6 +578,7 @@ contexts_order<-c('Exc eQTL','Exc sQTL',
 setdiff(res_adxloc$context_group,contexts_order)
 res_adxloc[,context_group:=factor(context_group,levels = contexts_order)]
 
+#genome wide signifcant htis####
 
 res_adxlocf<-res_adxloc[(genomewide_sig_gene)]
 
@@ -558,61 +615,6 @@ res_adxlocf_cont_topf[,locus_gene_2:=ifelse(!all(only_by_proxi,na.rm = T),paste0
 #order per gene tss and locus position
 res_adxlocf_cont_topf[,locus_gene_3:=factor(locus_gene_2,levels = unique(locus_gene_2[order(chr,-tss,-min_pval)]))]
 
-SummPanel<-function(res_adxqtloc,res_adxloc_gwas,palette=brewer.pal(8, "Pastel1")){
-  #filter the gwas and annot with the gene too
-  res_adxloc_gwasf<-merge(res_adxloc_gwas,
-                          unique(res_adxqtloc[,.(locus_index,locus_gene_3,locus_gene)]),by='locus_index',allow.cartesian = TRUE)
-  
-  p<-ggplot(res_adxqtloc)+
-    geom_point(aes(y=locus_gene_3,x=context_group,
-                   size=n_study_group.locus,
-                   col=confidence_cat_group))+
-    facet_grid(chr~'',scales = 'free',space = 'free')+
-    scale_size(range = c(1.5,5),breaks = c(2,7,12))+theme_minimal()+
-    scale_x_discrete(guide = guide_axis(angle = 90))+
-    theme(strip.text.x = element_text(angle = 90))+
-    labs(size='# datasets',col='Confidence level')+
-    scale_color_manual(values = c('brown1','deepskyblue4','darkseagreen3'))+ 
-    theme(strip.text.x = element_text(angle = 90),
-          axis.text.y = element_blank(),
-          axis.title.y = element_blank())+
-    scale_y_discrete(labels=function(x) str_remove(x, "_[0-9]+"))
-  
-  g<-ggplot(res_adxloc_gwasf)+
-    geom_point(aes(y=locus_gene_3,x=gwas_short2,
-                   col=gwas_sig),size=1,shape=15)+
-    facet_grid(chr~'',scales = 'free',space = 'free')+
-    # scale_size(range = c(0.5,2))+
-    theme_minimal()+
-    scale_x_discrete(guide = guide_axis(angle = 90))+
-    scale_color_manual(values = c('grey','bisque3','orange3','brown4'))+
-    theme(axis.text.x = element_markdown(size = 7),
-          axis.text.y = element_blank(),
-          axis.title.y =element_blank(),
-          strip.text = element_blank(),   # remove facet text
-          strip.background = element_blank() 
-    )
-  #add the locus number
-  colors <- data.table(locus_index=unique(res_adxqtloc$locus_index),
-                       color=palette)
-  
-  l<-ggplot(unique(res_adxqtloc,
-                    by=c('locus_gene_3')),
-             aes(x=0,y=locus_gene_3))+
-    geom_tile(aes(fill=as.factor(locus_index)))+scale_fill_manual(values = setNames(colors$color,as.character(colors$locus_index)))+
-    geom_text(aes(label=locus_index),size=2)+
-    facet_grid(chr~'',scales = 'free',space = 'free')+theme_minimal()+
-    theme(axis.text.y = element_markdown(size=6),
-          axis.title.y = element_blank(), 
-          strip.text = element_blank(),   # remove facet text
-          strip.background = element_blank(),
-          axis.text.x=element_blank(),axis.title.x = element_blank(),
-          legend.position = "none")+
-    scale_y_discrete(labels=function(x) str_remove(x, "[A-Za-z0-9]+_[2-9]|_[0-9]+"))
-  
-  
-  return(list(l,g,p))
-}
 
 ps<-lapply(list(1:7,8:15,16:17,18:22), function(chrs){
   SummPanel(res_adxlocf_cont_topf[chr%in%chrs],res_adxloc_gwas)
@@ -637,82 +639,41 @@ wrap_plots(ps)+plot_layout(guides = 'collect',widths = rep(c(0.5,1.5,6),length(s
 
 
 #suggestive signal####
-#CL1 CL2 CL3 CL4 + more than 2 GWAS + at least 2 datasets in a similar context####
 
 
-res_adxlocgef<-res_adxlocge[!(genomewide_sig_gene)][gene_name%in%gene_name[confidence_lvl_group%in%c('CL1','CL2','CL3','CL4')&n_gwas_locus>2&n_study_group.locus>=2]]
+res_adxlocf<-res_adxloc[!(genomewide_sig_gene)][gene_name%in%gene_name[confidence_lvl_group%in%c('CL1','CL2','CL3','CL4')&n_gwas_locus>2&n_study_group.locus>=2]]
 
-res_adxlocge_cont_top2f<-unique(res_adxlocgef,by=c('gene_name','context_group','locus_index'))
+res_adxlocf_cont<-unique(res_adxlocf,by=c('gene_name','context_group','locus_index'))
 
 
 #sep causal vs correlated 
 #add if frpm, APOE region, from AD by proxy only, or from more than one locus
 
-res_adxlocge_cont_top2f[,confidence_cat_group:=ifelse(confidence_lvl_group.locus%in%c('CL1',"CL2"),'Putative causal (CL1, CL2)',ifelse(confidence_lvl_group.locus=='CL3','Putative causal (CL3)','Associated'))]
-res_adxlocge_cont_top2f[,confidence_cat_group:=factor(confidence_cat_group,levels = c('Putative causal (CL1, CL2)','Putative causal (CL3)','Associated (CL4, CL5)'))]
-
-
+res_adxlocf_cont[,confidence_cat_group:=ifelse(confidence_lvl_group.locus%in%c('CL1',"CL2"),'Putative causal (CL1, CL2)',ifelse(confidence_lvl_group.locus=='CL3','Putative causal (CL3)','Associated (CL4, CL5)'))]
+res_adxlocf_cont[,confidence_cat_group:=factor(confidence_cat_group,levels = c('Putative causal (CL1, CL2)','Putative causal (CL3)','Associated (CL4, CL5)'))]
 
 #annot genes
-res_adxlocge_cont_top2f[,locus_gene_2:=paste(gene_name,match(locus_gene,
-                                                            unique(locus_gene[order(chr,tss,min_pval)])),sep='_'),
-                       by=.(gene_name)]
+res_adxlocf_cont[,locus_gene_2:=paste(gene_name,match(locus_gene,
+                                                           unique(locus_gene[order(chr,tss,min_pval)])),sep='_'),
+                      by=.(gene_name)]
 
-res_adxlocge_cont_top2f[,locus_gene_2:=paste0("<i>",locus_gene_2[1],'</i>'),
-                       by='locus_gene']
-#add asterisk if others genes in a CL4+ locus
+res_adxlocf_cont[,locus_gene_2:=paste0("<i>",locus_gene_2[1],'</i>'),
+                      by='locus_gene']
 
-res_adxlocge_cont_top2f[,n_gene_cl:=length(unique(gene_name)),by=c('locus_index','top_confidence')]
-res_adxlocge_cont_top2f[,locus_gene_2:=paste0(locus_gene_2,ifelse(n_gene_cl>1&!top_confidence%in%c("CL1",'CL2','CL3'),
-                                                                 '*','')),
-                       by='locus_gene']
 #add if from  AD by proxy only
-res_adxlocge_cont_top2f[,locus_gene_2:=ifelse(!all(only_by_proxi,na.rm = T),paste0("<b>",locus_gene_2[1],'</b>'),
-                                             locus_gene_2[1]),
-                       by='locus_gene']
+res_adxlocf_cont[,locus_gene_2:=ifelse(!all(only_by_proxi,na.rm = T),paste0("<b>",locus_gene_2[1],'</b>'),
+                                            locus_gene_2[1]),
+                      by='locus_gene']
 
 #order per gene tss and locus position
-res_adxlocge_cont_top2f[,locus_gene_3:=factor(locus_gene_2,levels = unique(locus_gene_2[order(-chr,-tss,-as.numeric(str_extract(locus_gene_2,'_[0-9+]')|>str_remove('_')))]))]
-
-#filter the gwas and annot with the gene too
-res_adxloc_gwas2f<-merge(res_adxloc_gwas,unique(res_adxlocge_cont_top2f[!(APOE_region.gene)&(top_gene|top_confidence%in%c("CL1",'CL2','CL3'))][,.(locus_index,locus_gene_3,locus_gene)]),by='locus_index')
+res_adxlocf_cont[,locus_gene_3:=factor(locus_gene_2,levels = unique(locus_gene_2[order(chr,-tss,-min_pval)]))]
 
 
+ps<-SummPanel(res_adxlocf_cont,res_adxloc_gwas)
 
-p1<-ggplot(res_adxlocge_cont_top2f[!(APOE_region.gene)&(top_gene|top_confidence%in%c("CL1",'CL2','CL3'))])+
-  geom_point(aes(y=locus_gene_3,x=context_group,
-                 size=n_study_group.locus,
-                 col=confidence_cat_group))+
-  facet_grid(chr~'',scales = 'free',space = 'free')+
-  scale_size(range = c(1.5,5),breaks = c(2,7,12))+theme_minimal()+
-  scale_x_discrete(guide = guide_axis(angle = 90))+
-  theme(strip.text.x = element_text(angle = 90))+
-  labs(size='# datasets',col='Confidence level')+
-  scale_color_manual(values = c('brown1','deepskyblue4','darkseagreen3'))+ 
-  theme(strip.text.x = element_text(angle = 90),
-        axis.text.y = element_blank(),
-        axis.title.y = element_blank())+
-  scale_y_discrete(labels=function(x) str_remove(x, "[A-Za-z0-9]+_[2-9]|_[0-9]+"))
-p1
+wrap_plots(ps)+plot_layout(guides = 'collect',widths = c(0.5,1.5,6))&
+  theme(plot.margin = margin(0, 0, 0, 0)) 
 
-g1<-ggplot(res_adxloc_gwas2f)+
-  geom_point(aes(y=locus_gene_3,x=gwas_short2,
-                 col=gwas_sig),size=1,shape=15)+
-  facet_grid(chr~'',scales = 'free',space = 'free')+
-  # scale_size(range = c(0.5,2))+
-  theme_minimal()+
-  scale_x_discrete(guide = guide_axis(angle = 90))+
-  scale_color_manual(values = c('grey','bisque3','orange3','brown4'))+
-  theme(axis.text.x = element_markdown(size = 7),
-        axis.text.y = element_markdown(size=7),axis.title.y =element_blank(),
-        strip.text = element_blank(),   # remove facet text
-        strip.background = element_blank() 
-  )+
-  scale_y_discrete(labels=function(x) str_remove(x, "[A-Za-z0-9]+_[2-9]|_[0-9]+"))
-
-P1<-g1+p1+plot_layout(guides = 'collect',widths = c(1.5,6))&
-  theme(plot.margin = margin(0, 0, 0, 0))
-P1
 
 ggsave(fp(out,'ADloci_xQTL_summary_suggestive_loci_top_gene_per_locus_3categories.png'),height = 5,width = 6)
 
