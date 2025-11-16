@@ -838,9 +838,9 @@ res_adfv[order(chr,ADlocus,-max_variant_inclusion_probability)]
 res_adfv[is.na(susie_coverage)]
 table(res_adfv$ADlocusID)
 #unique(res_adfv[,.(ADlocus,GWAS_methods)][order(-str_length(GWAS_methods))],by='ADlocus')[101:194]
-
+res_adfv[,median_pos:=median(pos),by='ADlocus']
 #add locus index
-adloci<-unique(res_adfv[order(chr,ADlocus,-max_variant_inclusion_probability)],by='ADlocus')
+adloci<-unique(res_adfv[order(chr,median_pos,-max_variant_inclusion_probability)],by='ADlocus')
 adloci[,locus_index:=1:.N]
 res_adfv<-merge(res_adfv[,-'locus_index'],adloci[,.(ADlocus,locus_index)])
 setcolorder(res_adfv,'locus_index')
@@ -867,7 +867,7 @@ fwrite(res_adfv[order(locus_index)],fp(out,'AD_loci_unified_cs95orColocs_Pval1e5
 res_adfv<-fread(fp(out,'AD_loci_unified_cs95orColocs_Pval1e5_variant_level.csv.gz'))
 
 #export
-fwrite(res_adfv[order(locus_index)],fp(out,'AD_loci_unified_cs95orColocs_Pval1e5_variant_level.csv.gz'))
+fwrite(res_adfv[order(locus_index)],'/projectnb/tcwlab/LabMember/adpelle1/projects/xqtl-resources/data/genes/AD_loci_unified_cs95orColocs_Pval1e5_variant_level.csv.gz')
 
 
 
