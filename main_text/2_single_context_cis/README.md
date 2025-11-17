@@ -4,4 +4,4 @@
 | Figure_1_single_context_cs_distance | S2  |
 | Figure_1_EOO                    | 1e & 2e |
 | Figure_1_sLDSC_meta_analysis    | 1f & 2f |
-| Figure_1sLDSC_GWAS_specific     |         |
+| Figure_1_sLDSC_GWAS_specific     |         |
